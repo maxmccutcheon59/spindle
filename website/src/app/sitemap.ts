@@ -8,10 +8,22 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: `${site.url}/`, lastModified, changeFrequency: "weekly", priority: 1 },
     {
+      url: `${site.url}/enterprise/`,
+      lastModified,
+      changeFrequency: "weekly",
+      priority: 0.99,
+    },
+    {
       url: `${site.url}/agent/`,
       lastModified,
       changeFrequency: "weekly",
       priority: 0.98,
+    },
+    {
+      url: `${site.url}/case-study/`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.92,
     },
     {
       url: `${site.url}/pricing/`,

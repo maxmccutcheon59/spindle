@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { plans, site } from "@/lib/site";
+import { businessReasons, plans, site } from "@/lib/site";
 import {
   CtaLink,
   SiteFooter,
@@ -9,8 +9,8 @@ import {
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Pricing",
-  description: `Spindle Cloud pricing — open source free, Builder ${plans[1].price}/mo, Scale ${plans[2].price}/mo. Managed LSM storage with crash-tested durability.`,
+  title: "Pricing — flat plans, pay by card or bank",
+  description: `Spindle Cloud pricing — open source free, Builder ${plans[1].price}/mo, Scale ${plans[2].price}/mo. Pay by card or US bank via Stripe. No DynamoDB capacity meters.`,
   alternates: { canonical: "/pricing/" },
 };
 
@@ -23,13 +23,43 @@ export default function PricingPage() {
           Pricing
         </p>
         <h1 className="mt-3 max-w-2xl font-[family-name:var(--font-display)] text-4xl font-extrabold tracking-tight text-ink md:text-5xl">
-          Pay for ops. Keep the engine readable.
+          Flat bills. Card or bank. No RCU theater.
         </h1>
         <p className="mt-5 max-w-2xl text-lg text-muted-foreground">
-          {site.product} is the managed layer on the open-source Spindle LSM.
-          Same durability story — without you paging yourself at 2am for
-          compaction debt.
+          {site.product} subscriptions settle through{" "}
+          <strong className="font-semibold text-ink/90">Stripe</strong> — credit
+          cards worldwide, US bank (ACH) when enabled. Money goes to founder{" "}
+          {site.author.name}. Compare that to decoding Dynamo capacity invoices.
         </p>
+
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {businessReasons.map((r) => (
+            <div key={r.title} className="border-l-2 border-teal pl-4">
+              <p className="font-semibold text-ink">{r.title}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{r.body}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-10 border-l-2 border-sand bg-card/70 px-4 py-3 text-sm leading-relaxed text-ink/90">
+          <strong className="text-teal-deep">Checkout: </strong>
+          Pay on Stripe Checkout (card / bank) or a Payment Link. See{" "}
+          <Link
+            href="/enterprise/"
+            className="font-medium text-teal-deep underline-offset-2 hover:underline"
+          >
+            why enterprises switch
+          </Link>{" "}
+          and the{" "}
+          <Link
+            href="/case-study/"
+            className="font-medium text-teal-deep underline-offset-2 hover:underline"
+          >
+            honest case study
+          </Link>
+          . Early-access pricing funds the hosted layer; the Rust engine already
+          passes <code className="font-mono text-xs">cargo test</code>.
+        </div>
 
         <div className="mt-12 grid gap-6 lg:grid-cols-3">
           {plans.map((plan) => (
@@ -98,13 +128,13 @@ export default function PricingPage() {
         </div>
 
         <p className="mt-10 text-center text-sm text-muted-foreground">
-          Questions before you subscribe?{" "}
-          <Link
-            href={site.github}
+          Questions before you pay? Email{" "}
+          <a
+            href={`mailto:${site.author.email}`}
             className="font-medium text-teal-deep underline-offset-2 hover:underline"
           >
-            Open an issue on GitHub
-          </Link>{" "}
+            {site.author.email}
+          </a>{" "}
           or read the{" "}
           <Link
             href="/design/"

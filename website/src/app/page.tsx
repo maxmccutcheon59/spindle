@@ -1,4 +1,12 @@
-import { benches, credentials, saasPromises, site, stack } from "@/lib/site";
+import {
+  benches,
+  credentials,
+  enterpriseWins,
+  saasPromises,
+  site,
+  stack,
+  vsCloud,
+} from "@/lib/site";
 import { LsmHeroVisual } from "@/components/lsm-hero-visual";
 import {
   CtaLink,
@@ -7,6 +15,8 @@ import {
 } from "@/components/site-chrome";
 
 export default function HomePage() {
+  const compare = vsCloud[0];
+
   return (
     <div className="relative">
       <SiteHeader />
@@ -18,19 +28,22 @@ export default function HomePage() {
               {site.name}
             </p>
             <p className="animate-rise-delay-1 mt-3 text-sm font-semibold tracking-wide text-teal-deep md:text-base">
-              by {site.author.name}
+              Founded by {site.author.name}
             </p>
             <h1 className="animate-rise-delay-1 mt-5 max-w-xl text-2xl font-semibold leading-snug text-ink/90 md:text-3xl">
-              Managed LSM storage worth the subscription.
+              The KV cloud built for convenience — without DynamoDB lock-in.
             </h1>
             <p className="animate-rise-delay-2 mt-5 max-w-lg text-base leading-relaxed text-muted-foreground md:text-lg">
-              A crash-tested Rust key-value engine — WAL, leveled compaction,
-              MVCC — with {site.product} when you want Max running it for you.
+              Flat pricing. An API your team already understands. An engine you
+              can open when storage misbehaves. {site.product} is what companies
+              use when hyperscaler KV is powerful — and exhausting.
             </p>
             <div className="animate-rise-delay-3 mt-8 flex flex-wrap gap-3">
-              <CtaLink href="/agent/">Talk to Spindle Agent</CtaLink>
-              <CtaLink href="/pricing/" variant="ghost">
-                See pricing
+              <CtaLink href="/subscribe/builder/">
+                Pay with Stripe · $49
+              </CtaLink>
+              <CtaLink href="/enterprise/" variant="ghost">
+                Why enterprises switch
               </CtaLink>
             </div>
           </div>
@@ -65,10 +78,78 @@ export default function HomePage() {
         <section className="border-b border-border/80 bg-card/60 backdrop-blur-sm">
           <div className="mx-auto max-w-6xl px-5 py-16 md:px-8 md:py-20">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-deep">
-              Why teams pay
+              Why companies rely on Spindle
             </p>
             <h2 className="mt-3 max-w-2xl font-[family-name:var(--font-display)] text-3xl font-bold tracking-tight text-ink md:text-4xl">
-              Not another mystery database. A contract you can read.
+              More convenient than a black box. More controllable than a cage.
+            </h2>
+            <div className="mt-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
+              {enterpriseWins.map((item) => (
+                <article key={item.title}>
+                  <h3 className="font-[family-name:var(--font-display)] text-xl font-bold text-ink">
+                    {item.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    {item.body}
+                  </p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-5 py-16 md:px-8 md:py-20">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-deep">
+            vs hyperscaler KV
+          </p>
+          <h2 className="mt-3 font-[family-name:var(--font-display)] text-3xl font-bold tracking-tight text-ink md:text-4xl">
+            Dynamo-class power. Spindle-class ease.
+          </h2>
+          <p className="mt-4 max-w-2xl text-muted-foreground">
+            Big clouds win on endless feature lists. Spindle wins where
+            businesses actually feel pain: billing clarity, portability, and a
+            support path that reaches a human who built the fsync policy.
+          </p>
+
+          <div className="mt-10 overflow-x-auto">
+            <table className="w-full min-w-[640px] border-collapse text-left text-sm">
+              <thead>
+                <tr className="border-b border-border">
+                  <th className="py-3 pr-4 font-semibold text-muted-foreground">
+                    —
+                  </th>
+                  <th className="py-3 pr-4 font-semibold text-muted-foreground">
+                    {compare.them}
+                  </th>
+                  <th className="py-3 font-semibold text-teal-deep">
+                    {compare.us}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {compare.rows.map((row) => (
+                  <tr key={row.label} className="border-b border-border/70">
+                    <td className="py-3 pr-4 font-medium text-ink">
+                      {row.label}
+                    </td>
+                    <td className="py-3 pr-4 text-muted-foreground">
+                      {row.them}
+                    </td>
+                    <td className="py-3 font-medium text-ink">{row.us}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section className="border-y border-border/80 bg-card/60 backdrop-blur-sm">
+          <div className="mx-auto max-w-6xl px-5 py-16 md:px-8 md:py-20">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-deep">
+              Product promises
+            </p>
+            <h2 className="mt-3 max-w-2xl font-[family-name:var(--font-display)] text-3xl font-bold tracking-tight text-ink md:text-4xl">
+              Built for teams that ship, not for console tourism.
             </h2>
             <div className="mt-12 grid gap-10 md:grid-cols-3">
               {saasPromises.map((item) => (
@@ -96,8 +177,8 @@ export default function HomePage() {
             One write path. One read path. No mystery boxes.
           </h2>
           <p className="mt-4 max-w-2xl text-muted-foreground">
-            Cloud sits on the same LevelDB-shaped core Max published — small
-            enough to audit, serious enough to sell.
+            Cloud sits on the same LevelDB-shaped core the company publishes —
+            small enough to audit, serious enough to sell.
           </p>
           <div className="mt-12 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
             {stack.map((item) => (
@@ -122,20 +203,8 @@ export default function HomePage() {
               Microbenchmarks
             </p>
             <h2 className="mt-3 font-[family-name:var(--font-display)] text-3xl font-bold tracking-tight text-ink md:text-4xl">
-              Directional numbers, not a paper claim.
+              Directional numbers from the open engine.
             </h2>
-            <p className="mt-4 max-w-2xl text-muted-foreground">
-              Criterion on a Cloud Agent VM (2026-09-18). Full notes in{" "}
-              <a
-                className="font-medium text-teal-deep underline-offset-2 hover:underline"
-                href={site.design}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                DESIGN.md §9
-              </a>
-              .
-            </p>
             <div className="mt-10 grid gap-6 md:grid-cols-3">
               {benches.map((bench) => (
                 <div key={bench.name} className="border-l-2 border-teal pl-5">
@@ -149,33 +218,6 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
-            <p className="mt-8 text-sm text-muted-foreground">
-              Questions for the owner?{" "}
-              <a
-                className="font-semibold text-teal-deep underline-offset-2 hover:underline"
-                href={`mailto:${site.author.email}`}
-              >
-                {site.author.email}
-              </a>
-            </p>
-          </div>
-        </section>
-
-        <section className="mx-auto max-w-6xl px-5 py-16 md:px-8 md:py-20">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-deep">
-            Maker
-          </p>
-          <h2 className="mt-3 font-[family-name:var(--font-display)] text-3xl font-bold tracking-tight text-ink md:text-4xl">
-            {site.author.name}
-          </h2>
-          <p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-            {site.author.bio}
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <CtaLink href="/about/">About Max</CtaLink>
-            <CtaLink href={site.author.github} external variant="ghost">
-              @{site.author.handle}
-            </CtaLink>
           </div>
         </section>
 
@@ -183,11 +225,11 @@ export default function HomePage() {
           <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-8 px-5 py-16 md:flex-row md:items-center md:px-8 md:py-20">
             <div>
               <h2 className="font-[family-name:var(--font-display)] text-3xl font-bold tracking-tight md:text-4xl">
-                Start Cloud today. Keep the source forever.
+                Give your company a KV path it can own.
               </h2>
               <p className="mt-3 max-w-xl text-mist/75">
-                Builder is $49/mo. Scale is $149/mo. Or clone Max&apos;s engine
-                and pay nothing but your own disk.
+                Start on Spindle Cloud. Keep the MIT engine as insurance. Talk
+                to the founder when something matters.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -195,14 +237,14 @@ export default function HomePage() {
                 href="/subscribe/builder/"
                 className="bg-sand text-ink hover:bg-sand/90"
               >
-                Subscribe · Builder
+                Start Builder · $49
               </CtaLink>
               <CtaLink
-                href="/playground/"
+                href="/enterprise/"
                 variant="ghost"
                 className="text-mist ring-mist/30 hover:bg-white/5"
               >
-                Open playground
+                Enterprise brief
               </CtaLink>
             </div>
           </div>
