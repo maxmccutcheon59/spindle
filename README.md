@@ -1,13 +1,12 @@
 # Spindle
 
-An LSM-tree key-value storage engine in Rust.
+[![CI](https://github.com/maxmccutcheon59/spindle/actions/workflows/ci.yml/badge.svg)](https://github.com/maxmccutcheon59/spindle/actions/workflows/ci.yml)
 
-Spindle is a learning project: one repo, built milestone by milestone, with a
-`DESIGN.md` that records the choices that matter in a systems interview —
-WAL fsync policy, SSTable layout, leveled compaction ratios, MVCC sequence
-numbers, and crash-recovery contracts.
+An LSM-tree key-value storage engine written in Rust.
 
-## Quick start
+Implements a write-ahead log, block-based SSTables, leveled compaction, bloom filters, range scans, and MVCC snapshots — with crash-recovery tests and a design document that explains the trade-offs.
+
+## Build
 
 ```bash
 cargo test
@@ -24,29 +23,27 @@ assert_eq!(db.get(b"hello")?, Some(b"world".to_vec()));
 db.delete(b"hello")?;
 ```
 
-## What is implemented
+## Components
 
-| Milestone | Status |
-|-----------|--------|
-| 1. Memtable `put`/`get`/`delete` + tombstones + benches | done |
-| 2. WAL with replay + explainable fsync policy | done |
-| 3. Block-based SSTables (sparse index, footer, flush) | done |
-| 4. Read path + per-SSTable bloom filters | done |
-| 5. Leveled compaction (background thread, ×10 sizes) | done |
-| 6. Merging iterators / range scans | done |
-| 7. MVCC sequence numbers + snapshots | done |
-| 8. Crash harness + SSTable parser fuzz | done |
-| 9. RocksDB comparison bench + honest analysis | harness ready |
+| Area | Notes |
+|------|--------|
+| Memtable | `BTreeMap` with tombstones |
+| WAL | Append-before-memtable; `EveryWrite` or group-commit fsync |
+| SSTables | Block-based, sparse index, footer, per-table bloom filter |
+| Compaction | Leveled (×10 size ratio), background thread |
+| Reads | Memtable → immutables → SSTables; merging iterators for scans |
+| MVCC | Sequence numbers + snapshot reads |
+| Hardening | `kill -9` crash harness; adversarial SSTable parser tests |
 
-See [`DESIGN.md`](DESIGN.md) for the design rationale and the interview
-questions you should be able to answer after living through each milestone.
+Design rationale and interview notes: [`DESIGN.md`](DESIGN.md).
 
-## Optional RocksDB bench
+## RocksDB comparison (optional)
 
 ```bash
-# Needs librocksdb / lz4 on the host.
 cargo bench --bench rocksdb_compare --features rocksdb-bench
 ```
+
+Requires system RocksDB / lz4. Recorded numbers and analysis go in `DESIGN.md` §9.
 
 ## License
 
