@@ -1,46 +1,29 @@
 # Spindle Website (Spindle Cloud)
 
-SaaS marketing + checkout for the Spindle LSM engine.
+By **Max McCutcheon** — SaaS marketing, checkout, playground, and **Spindle Agent** (AI).
 
-## Develop
+## Develop (AI API enabled)
 
 ```bash
 cd website
 cp .env.example .env.local
+# optional: OPENAI_API_KEY=sk-... for GPT mode
 npm install
 npm run dev
 ```
 
-[http://127.0.0.1:43123](http://127.0.0.1:43123)
+[http://127.0.0.1:43123](http://127.0.0.1:43123) · Agent: [/agent](http://127.0.0.1:43123/agent/) · floating **AI** button site-wide.
 
-## Paid subscriptions (Stripe)
+## Google / production
 
-1. Create two [Stripe Payment Links](https://dashboard.stripe.com/payment-links) for Builder ($49/mo) and Scale ($149/mo).
-2. Set in `.env.local`:
+| Target | Command | Notes |
+|--------|---------|--------|
+| **Vercel** (recommended for Agent) | `vercel --cwd website` | Keeps `/api/agent` + GPT |
+| **Firebase (Google Hosting)** | `SPINDLE_STATIC=1 npm run build && firebase deploy` | Static; Agent needs Vercel or disable FAB |
+| **GitHub Pages** | `SPINDLE_STATIC=1 NEXT_PUBLIC_BASE_PATH=/spindle npm run build` | Workflow in repo |
 
-```bash
-NEXT_PUBLIC_STRIPE_PAYMENT_LINK_BUILDER=https://buy.stripe.com/...
-NEXT_PUBLIC_STRIPE_PAYMENT_LINK_SCALE=https://buy.stripe.com/...
-```
+After public deploy: add the URL in [Google Search Console](https://search.google.com/search-console) (sitemap at `/sitemap.xml`).
 
-Without those vars, `/subscribe/builder/` runs a **demo checkout** (no charge) so you can still walk the SaaS flow.
+## Stripe
 
-## Deploy on Google (Firebase Hosting)
-
-```bash
-cd website
-npm run build
-npx firebase login
-npx firebase use --add   # create/select project spindle-cloud
-npx firebase deploy --only hosting
-```
-
-Public URL will be `https://<project-id>.web.app` (and custom domain in Firebase console). That URL is what you submit to [Google Search Console](https://search.google.com/search-console) for indexing.
-
-## GitHub Pages (optional)
-
-```bash
-NEXT_PUBLIC_BASE_PATH=/spindle NEXT_PUBLIC_SITE_URL=https://maxmccutcheon59.github.io/spindle npm run build
-```
-
-Workflow: `../.github/workflows/pages.yml`.
+Set `NEXT_PUBLIC_STRIPE_PAYMENT_LINK_BUILDER` / `_SCALE` in `.env.local`.
