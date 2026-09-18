@@ -1,10 +1,13 @@
 # Spindle
 
 [![CI](https://github.com/maxmccutcheon59/spindle/actions/workflows/ci.yml/badge.svg)](https://github.com/maxmccutcheon59/spindle/actions/workflows/ci.yml)
+[![Site](https://img.shields.io/badge/site-spindle-0f7a7a)](https://maxmccutcheon59.github.io/spindle/)
 
 An LSM-tree key-value storage engine written in Rust.
 
 Implements a write-ahead log, block-based SSTables, leveled compaction, bloom filters, range scans, and MVCC snapshots — with crash-recovery tests and a design document that explains the trade-offs.
+
+**Site:** [maxmccutcheon59.github.io/spindle](https://maxmccutcheon59.github.io/spindle/) · **Design:** [`DESIGN.md`](DESIGN.md)
 
 ## Build
 
@@ -35,7 +38,15 @@ db.delete(b"hello")?;
 | MVCC | Sequence numbers + snapshot reads |
 | Hardening | `kill -9` crash harness; adversarial SSTable parser tests |
 
-Design rationale and interview notes: [`DESIGN.md`](DESIGN.md).
+## Website
+
+```bash
+cd website
+npm install
+npm run dev -- --port 43123
+```
+
+Static export deploys to GitHub Pages via `.github/workflows/pages.yml`.
 
 ## RocksDB comparison (optional)
 
