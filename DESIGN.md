@@ -134,25 +134,44 @@ keys with `seq > snapshot`.
 
 ---
 
-## 9. RocksDB comparison (harness)
+## 9. Benchmarks
 
 ```bash
-cargo bench --bench rocksdb_compare --features rocksdb-bench
 cargo bench --bench basic
+cargo bench --bench rocksdb_compare --features rocksdb-bench  # needs librocksdb + C++ toolchain
 ```
 
-### Expected losses (honest, before numbers)
+### Spindle microbenchmarks (this machine, 2026-09-18)
+
+Short Criterion run (`--sample-size 10`, tmpfs-backed `tempfile` dirs). Treat as
+directional, not a paper result.
+
+| Bench | Median latency | Notes |
+|-------|----------------|-------|
+| `put/mem_only_no_sync` | ~256 µs/op | GroupCommit window 60s ≈ rarely fsyncs |
+| `put/durable_every_write` | ~686 µs/op | `fdatasync` after every WAL append |
+| `get/random_after_flush` | ~5.5 µs/op | 10k keys flushed to one SSTable |
+
+Durable puts are ~2.7× slower than the no-sync path here — expected: we pay
+for `sync_data` on every acknowledged write. Gets after flush are decent for a
+whole-file load + bloom probe, but will degrade as levels grow (no block cache).
+
+### RocksDB comparison
+
+Harness: `benches/rocksdb_compare.rs` (feature `rocksdb-bench`). **Not run in
+the Cloud Agent VM** — `librocksdb-sys` failed to compile (`#include <memory>` /
+`<limits>` missing; incomplete C++ standard library in the image). Run locally
+on a machine with a full C++ toolchain + RocksDB deps, then paste numbers here.
+
+### Expected losses (honest)
 
 | Workload | Why Spindle loses |
 |----------|-------------------|
-| Sync put | We publish a full memtable clone per write; RocksDB uses a skiplist. |
-| Sync put | No group-commit batching of the syscall path by default. |
-| Random get | Whole SSTable mmap'd into a `Vec<u8>` — no block cache, no OS warm. |
-| Scan | Materializes the merge into a `Vec` instead of streaming. |
-| Compaction | Single thread, no trivial-move, no compression. |
-
-Publish real numbers in this section after running the optional bench on
-a quiet machine. Do not invent them.
+| Sync put | Full memtable clone published per write; RocksDB uses a skiplist |
+| Sync put | No group-commit coalescing of the syscall path by default |
+| Random get | Whole SSTable loaded into a `Vec<u8>` — no block cache |
+| Scan | Materializes the merge into a `Vec` instead of streaming |
+| Compaction | Single thread, no trivial-move, no compression |
 
 ---
 
