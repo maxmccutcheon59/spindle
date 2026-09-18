@@ -6,11 +6,12 @@ export const dynamic = "force-static";
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date();
   return [
+    { url: `${site.url}/`, lastModified, changeFrequency: "weekly", priority: 1 },
     {
-      url: `${site.url}/`,
+      url: `${site.url}/agent/`,
       lastModified,
       changeFrequency: "weekly",
-      priority: 1,
+      priority: 0.98,
     },
     {
       url: `${site.url}/pricing/`,
@@ -19,10 +20,22 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.95,
     },
     {
-      url: `${site.url}/get-started/`,
+      url: `${site.url}/playground/`,
       lastModified,
       changeFrequency: "monthly",
       priority: 0.9,
+    },
+    {
+      url: `${site.url}/about/`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.85,
+    },
+    {
+      url: `${site.url}/get-started/`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.85,
     },
     {
       url: `${site.url}/design/`,
