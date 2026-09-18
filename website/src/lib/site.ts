@@ -1,28 +1,39 @@
 export const site = {
   name: "Spindle",
   product: "Spindle Cloud",
-  tagline: "Durable key-value storage that earns the invoice",
+  tagline: "Durable key-value storage, built by Max McCutcheon",
   description:
-    "Spindle Cloud is managed LSM storage built on a crash-tested Rust engine — write-ahead log, leveled compaction, MVCC, and honest latency. Open-source core. Paid cloud when you want someone else running it.",
+    "Spindle is Max McCutcheon's LSM-tree storage engine in Rust — WAL, leveled compaction, MVCC, crash tests — with Spindle Cloud for managed subscriptions. Portfolio-grade systems software you can read and run.",
   url:
     process.env.NEXT_PUBLIC_SITE_URL ??
-    "https://spindle-cloud.web.app",
+    "https://maxmccutcheon59.github.io/spindle",
   github: "https://github.com/maxmccutcheon59/spindle",
   design:
     "https://github.com/maxmccutcheon59/spindle/blob/main/DESIGN.md",
   author: {
     name: "Max McCutcheon",
+    handle: "maxmccutcheon59",
+    role: "Software engineer",
+    email: "maxmccutcheon59@gmail.com",
     github: "https://github.com/maxmccutcheon59",
+    bio: "I build systems software you can defend in an interview — storage, durability, and the trade-offs written down. Spindle is my from-scratch LSM engine; Spindle Cloud is the managed layer on top.",
   },
+  ownership:
+    "Spindle, Spindle Cloud, and Spindle Agent are solely owned and operated by Max McCutcheon (maxmccutcheon59@gmail.com). The open-source engine is MIT-licensed; the Cloud product, website, branding, and Agent are Max’s.",
   keywords: [
     "Spindle",
     "Spindle Cloud",
+    "Max McCutcheon",
+    "maxmccutcheon59",
+    "Max McCutcheon Spindle",
+    "Spindle LSM",
+    "Spindle Rust",
     "LSM tree",
-    "managed key-value store",
     "Rust storage engine",
+    "managed key-value store",
     "SaaS database",
-    "durable KV",
     "MVCC",
+    "internship portfolio",
   ],
 } as const;
 
@@ -34,7 +45,7 @@ export const plans = [
     name: "Open Source",
     price: "$0",
     period: "forever",
-    blurb: "Run the engine yourself. Full source, crash harness, design notes.",
+    blurb: "Clone Max’s engine. Full source, crash harness, design notes.",
     features: [
       "MIT-licensed Rust LSM engine",
       "WAL, SSTables, leveled compaction",
@@ -51,12 +62,13 @@ export const plans = [
     name: "Builder",
     price: "$49",
     period: "/ month",
-    blurb: "Managed Spindle for side projects and staging — durability without ops theater.",
+    blurb:
+      "Managed Spindle for side projects and staging — durability without ops theater.",
     features: [
       "25 GB durable storage",
       "Daily snapshots",
       "Single-region Cloud endpoint",
-      "Email support · 99.5% target",
+      "Email support from Max · 99.5% target",
       "Cancel anytime",
     ],
     cta: "Start Builder",
@@ -84,7 +96,6 @@ export const plans = [
   },
 ] as const;
 
-/** Stripe Payment Links — set in env for live checkout; demo mode otherwise. */
 export function stripePaymentLink(plan: PlanId): string | null {
   if (typeof process === "undefined") return null;
   if (plan === "builder") {
@@ -145,10 +156,17 @@ export const saasPromises = [
   },
   {
     title: "Ops without the folklore",
-    body: "We run compaction, snapshots, and disk hygiene. You get an endpoint and a bill you can explain.",
+    body: "Compaction, snapshots, and disk hygiene stay on Max’s side of the fence. You get an endpoint and a bill you can explain.",
   },
   {
     title: "Engine you can still open",
-    body: "The paid tier is managed ops on the same LSM you can clone on GitHub. No black-box storage myth.",
+    body: "The paid tier is managed ops on the same LSM Max published on GitHub. No black-box storage myth.",
   },
+] as const;
+
+export const credentials = [
+  { label: "Language", value: "Rust 1.85+" },
+  { label: "License", value: "MIT © Max" },
+  { label: "Owner", value: "Max McCutcheon" },
+  { label: "Email", value: "maxmccutcheon59@gmail.com" },
 ] as const;
