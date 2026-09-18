@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 const STARTERS = [
   "What happens if we crash after WAL fsync?",
-  "Builder vs Scale \u2014 which should I pick?",
+  "Builder vs Scale — which should I pick?",
   "Show me the Rust put/get API",
   "Does Spindle fit a session store?",
 ] as const;
@@ -18,7 +18,7 @@ export function AgentChat({ compact = false }: { compact?: boolean }) {
     {
       role: "assistant",
       content:
-        "I\u2019m Spindle Agent \u2014 Max McCutcheon\u2019s AI for the engine and Cloud. Ask about durability, pricing, APIs, or your workload.",
+        "I’m Spindle Agent — Max McCutcheon’s AI for the engine and Cloud. Ask about durability, pricing, APIs, or your workload.",
     },
   ]);
   const [input, setInput] = useState("");
@@ -59,7 +59,7 @@ export function AgentChat({ compact = false }: { compact?: boolean }) {
         {
           role: "assistant",
           content:
-            "I couldn\u2019t reach the agent API. If you\u2019re on a static export, run `npm run dev` (server mode) or deploy to Vercel with the API route. You can still use /playground/ and /docs.",
+            "I couldn’t reach the agent API. If you’re on a static export, run `npm run dev` (server mode) or deploy to Vercel with the API route. You can still use /playground/ and /docs.",
         },
       ]);
     } finally {
@@ -80,7 +80,7 @@ export function AgentChat({ compact = false }: { compact?: boolean }) {
             Spindle Agent
           </p>
           <p className="text-[11px] text-mist/60">
-            by Max McCutcheon \u00b7{" "}
+            by Max McCutcheon ·{" "}
             {mode === "openai"
               ? "GPT connected"
               : mode === "local" || mode === "local-fallback"
@@ -142,7 +142,7 @@ export function AgentChat({ compact = false }: { compact?: boolean }) {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask Spindle Agent\u2026"
+          placeholder="Ask Spindle Agent…"
           className="flex-1 rounded-xl border border-border bg-card px-4 py-3 text-sm text-ink outline-none ring-teal focus:ring-2"
           disabled={busy}
           autoComplete="off"
