@@ -1,35 +1,36 @@
 export const site = {
   name: "Spindle",
   product: "Spindle Cloud",
-  tagline: "Durable key-value storage, built by Max McCutcheon",
+  tagline: "The convenient KV cloud companies can actually own",
   description:
-    "Spindle is Max McCutcheon's LSM-tree storage engine in Rust — WAL, leveled compaction, MVCC, crash tests — with Spindle Cloud for managed subscriptions. Portfolio-grade systems software you can read and run.",
+    "Spindle is Max McCutcheon’s LSM-tree key-value engine and Spindle Cloud — flat-priced, open-source-underneath durable storage for businesses that refuse DynamoDB’s capacity theater, lock-in, and black-box ops.",
   url:
     process.env.NEXT_PUBLIC_SITE_URL ??
-    "https://spindle-cloud.web.app",
+    "https://maxmccutcheon59.github.io/spindle",
   github: "https://github.com/maxmccutcheon59/spindle",
   design:
     "https://github.com/maxmccutcheon59/spindle/blob/main/DESIGN.md",
   author: {
     name: "Max McCutcheon",
     handle: "maxmccutcheon59",
-    role: "Software engineer",
+    role: "Founder",
     email: "maxmccutcheon59@gmail.com",
     github: "https://github.com/maxmccutcheon59",
-    bio: "I build systems software you can defend in an interview — storage, durability, and the trade-offs written down. Spindle is my from-scratch LSM engine; Spindle Cloud is the managed layer on top.",
+    bio: "Founder of Spindle. I build storage companies can defend — durable puts, readable engines, and Cloud convenience without hyperscaler lock-in.",
   },
   ownership:
-    "Spindle, Spindle Cloud, and Spindle Agent are solely owned and operated by Max McCutcheon (maxmccutcheon59@gmail.com). The open-source engine is MIT-licensed; the Cloud product, website, branding, and Agent are Max’s.",
+    "Spindle, Spindle Cloud, and Spindle Agent are founded and solely owned by Max McCutcheon (maxmccutcheon59@gmail.com). The open-source engine is MIT-licensed; the Cloud product, website, branding, and Agent are company assets of the founder.",
   keywords: [
     "Spindle",
     "Spindle Cloud",
     "Max McCutcheon",
-    "LSM tree",
-    "Rust storage engine",
+    "DynamoDB alternative",
+    "DynamoDB competitor",
     "managed key-value store",
-    "SaaS database",
-    "MVCC",
-    "internship portfolio",
+    "predictable database pricing",
+    "open source KV",
+    "LSM tree Rust",
+    "enterprise key-value",
   ],
 } as const;
 
@@ -41,12 +42,13 @@ export const plans = [
     name: "Open Source",
     price: "$0",
     period: "forever",
-    blurb: "Clone Max’s engine. Full source, crash harness, design notes.",
+    blurb:
+      "Run Spindle in your VPC or on bare metal. Full MIT source. Zero AWS tax, zero lock-in insurance.",
     features: [
       "MIT-licensed Rust LSM engine",
       "WAL, SSTables, leveled compaction",
       "kill -9 crash tests in CI",
-      "Self-host on your metal",
+      "Embed in your product — take it with you",
     ],
     cta: "View on GitHub",
     href: "https://github.com/maxmccutcheon59/spindle",
@@ -59,13 +61,13 @@ export const plans = [
     price: "$49",
     period: "/ month",
     blurb:
-      "Managed Spindle for side projects and staging — durability without ops theater.",
+      "One flat bill. No RCU/WCU spreadsheets. Ship staging KV in an afternoon — the convenience Dynamo never gave finance.",
     features: [
       "25 GB durable storage",
       "Daily snapshots",
       "Single-region Cloud endpoint",
-      "Email support from Max · 99.5% target",
-      "Cancel anytime",
+      "Founder-reachable support · 99.5% target",
+      "Cancel anytime — no reserved capacity",
     ],
     cta: "Start Builder",
     href: "/subscribe/builder/",
@@ -77,13 +79,14 @@ export const plans = [
     name: "Scale",
     price: "$149",
     period: "/ month",
-    blurb: "Production KV with room to grow — the plan you can defend to a CFO.",
+    blurb:
+      "Predictable production pricing for companies that outgrew toy KV and refuse invoice roulette.",
     features: [
       "250 GB durable storage",
       "Point-in-time recovery (7 days)",
-      "Priority support · 99.9% target",
+      "Priority founder support · 99.9% target",
       "Usage dashboards & audit log",
-      "Cancel anytime",
+      "Same open engine under the hood",
     ],
     cta: "Start Scale",
     href: "/subscribe/scale/",
@@ -91,14 +94,6 @@ export const plans = [
     highlighted: false,
   },
 ] as const;
-
-export function stripePaymentLink(plan: PlanId): string | null {
-  if (typeof process === "undefined") return null;
-  if (plan === "builder") {
-    return process.env.NEXT_PUBLIC_STRIPE_PAYMENT_LINK_BUILDER || null;
-  }
-  return process.env.NEXT_PUBLIC_STRIPE_PAYMENT_LINK_SCALE || null;
-}
 
 export const benches = [
   {
@@ -145,24 +140,111 @@ export const stack = [
   },
 ] as const;
 
+/** Why companies pick Spindle over Dynamo-class clouds */
+export const enterpriseWins = [
+  {
+    title: "No capacity theater",
+    body: "DynamoDB forces RCUs, WCUs, on-demand mode, reserved capacity, and FinOps archaeology. Spindle Cloud is a flat monthly plan — put, get, scan. Finance forecasts one line. Engineering ships without a capacity committee.",
+  },
+  {
+    title: "Convenience that still opens",
+    body: "Black-box stores fail opaquely — then your pager wakes a team that can’t read the code. Spindle’s engine is MIT on GitHub. Your staff (or ours) can walk the WAL path, the bloom, the compaction. Managed ease with an audit trail.",
+  },
+  {
+    title: "Portability is the product",
+    body: "Hyperscaler KV traps you in proprietary APIs and region gravity. Embed Spindle’s crate, run on your metal, or subscribe to Cloud. Same mental model. Leave when you want — the engine comes with you.",
+  },
+  {
+    title: "Founder on the thread, not ticket roulette",
+    body: "Enterprise AWS support is a queue with severity codes. With Spindle you email maxmccutcheon59@gmail.com and talk to the person who wrote the fsync policy. Big companies pay for that clarity.",
+  },
+  {
+    title: "Onboarding in hours, not console tourism",
+    body: "No IAM maze, no capacity class bingo, no twelve Dynamo feature footnotes to explain a put. Endpoint + Agent + docs. New hires touch storage on day one.",
+  },
+  {
+    title: "One mental model your org can defend",
+    body: "Keys, values, sequences, snapshots. Security and platform teams get DESIGN.md, crash tests, and source — not a PDF that says “trust the region.” That’s why enterprises rely on Spindle for KV that must stay explainable.",
+  },
+] as const;
+
+export const vsCloud = [
+  {
+    them: "DynamoDB / peers",
+    us: "Spindle Cloud",
+    rows: [
+      {
+        label: "Pricing",
+        them: "Usage meters, reserved capacity, surprise bills",
+        us: "Flat $49 / $149 — CFO-readable",
+      },
+      {
+        label: "Lock-in",
+        them: "Proprietary API + region gravity",
+        us: "MIT engine you can relocate",
+      },
+      {
+        label: "Debuggability",
+        them: "Closed source, opaque failure modes",
+        us: "DESIGN.md + readable Rust path",
+      },
+      {
+        label: "Support",
+        them: "Enterprise ticket maze",
+        us: "Founder on the email thread",
+      },
+      {
+        label: "Onboarding",
+        them: "Console + IAM + capacity classes",
+        us: "Endpoint + Agent + one model",
+      },
+      {
+        label: "Procurement",
+        them: "Commitments, reserved capacity, SKUs",
+        us: "Subscribe, cancel, no theater",
+      },
+    ],
+  },
+] as const;
+
 export const saasPromises = [
   {
-    title: "Durability you can quote",
-    body: "Every acknowledged put crosses an fsync policy. The open-source harness kill -9s the process and checks the log — Cloud inherits that contract.",
+    title: "Convenience without the cage",
+    body: "Managed durability and a simple API — without surrendering your stack to a proprietary store you can’t relocate when strategy changes.",
   },
   {
-    title: "Ops without the folklore",
-    body: "Compaction, snapshots, and disk hygiene stay on Max’s side of the fence. You get an endpoint and a bill you can explain.",
+    title: "Bills your CFO can read",
+    body: "Subscription lines beat decoding RU/WU graphs in a FinOps meeting. Scale when you need more bytes, not more jargon.",
   },
   {
-    title: "Engine you can still open",
-    body: "The paid tier is managed ops on the same LSM Max published on GitHub. No black-box storage myth.",
+    title: "Engine enterprises can audit",
+    body: "Security and platform teams get source, crash tests, and a design doc — not a compliance PDF that says “trust us.”",
+  },
+] as const;
+
+/** Business reasons — short bullets for pricing / enterprise CTAs */
+export const businessReasons = [
+  {
+    title: "Forecastable spend",
+    body: "Replace capacity planning meetings with a subscription your finance team can model.",
+  },
+  {
+    title: "Escape hatch built in",
+    body: "Open-source core means you’re never hostage to one vendor’s API or pricing flip.",
+  },
+  {
+    title: "Faster incident clarity",
+    body: "When storage breaks, you can read the write path — or email the founder who wrote it.",
+  },
+  {
+    title: "Simpler ops surface",
+    body: "One KV model. Less training debt. Less console sprawl for every new service.",
   },
 ] as const;
 
 export const credentials = [
   { label: "Language", value: "Rust 1.85+" },
   { label: "License", value: "MIT © Max" },
-  { label: "Owner", value: "Max McCutcheon" },
+  { label: "Founder", value: "Max McCutcheon" },
   { label: "Email", value: "maxmccutcheon59@gmail.com" },
 ] as const;

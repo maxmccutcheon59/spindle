@@ -39,9 +39,19 @@ const KNOWLEDGE: { keys: string[]; answer: string }[] = [
       "Directional Criterion numbers (2026-09-18): mem-only put ~256µs, durable put ~686µs, flushed get ~5.5µs. Honest losses vs RocksDB: no skiplist, whole-file SSTable load (no block cache), single compaction thread. Details in DESIGN.md §9.",
   },
   {
-    keys: ["pricing", "cost", "subscribe", "plan", "builder", "scale", "$"],
+    keys: ["pricing", "cost", "subscribe", "plan", "builder", "scale", "$", "pay", "stripe", "card", "bank", "ach", "payment"],
     answer:
-      "Plans: Open Source $0 (self-host). Builder $49/mo — 25GB, daily snapshots, email support. Scale $149/mo — 250GB, 7-day PITR, priority support. Checkout at /subscribe/builder/ (Stripe Payment Links when configured, demo mode otherwise).",
+      "Plans: Open Source $0 · Builder $49/mo · Scale $149/mo. Real checkout is Stripe — credit card worldwide, US bank (ACH) when enabled. Money goes to Max McCutcheon’s Stripe → his bank. Start at /subscribe/builder/ or /subscribe/scale/. Flat pricing vs Dynamo RCU/WCU theater — see /enterprise/.",
+  },
+  {
+    keys: ["dynamo", "dynamodb", "aws", "enterprise", "business", "company", "rival", "alternative", "vs", "compete", "lock-in"],
+    answer:
+      "Why companies pick Spindle over Dynamo-class KV: (1) flat bills finance can forecast, (2) MIT engine you can open when storage breaks, (3) run in your VPC or on Cloud — no proprietary cage, (4) founder on the email thread, (5) one mental model — keys/values/snapshots. Full brief: /enterprise/. Honest limits: Cloud is early-access; the Rust engine is real today (cargo test).",
+  },
+  {
+    keys: ["business", "company", "production", "use case", "why"],
+    answer:
+      "Teams use Spindle when they want durable KV with an auditable engine and optional managed Cloud — session/metadata stores, feature flags, side indexes, internal tools — without Dynamo capacity planning. Convenience + ownership. See /enterprise/ and /case-study/.",
   },
   {
     keys: ["start", "install", "cargo", "how to use", "api", "get started"],
@@ -59,14 +69,9 @@ const KNOWLEDGE: { keys: string[]; answer: string }[] = [
       "You’re talking to Spindle Agent — Max’s product assistant for Spindle Cloud and the open-source engine. With OPENAI_API_KEY on the server it uses GPT for general reasoning; otherwise I answer from Spindle’s design knowledge and product docs. Ask about durability, pricing, APIs, or how to ship KV workloads.",
   },
   {
-    keys: ["business", "company", "production", "use case", "why"],
-    answer:
-      "Teams use Spindle when they want durable KV with an auditable engine (interview-grade DESIGN.md + crash tests) and optional managed Cloud so ops isn’t on-call folklore. Typical fits: session/metadata stores, feature flags, embedding-adjacent side indexes, internal tools that need fsync-honest puts without adopting a black-box database.",
-  },
-  {
     keys: ["google", "deploy", "firebase", "hosting", "seo"],
     answer:
-      "Site is SEO-ready (sitemap.xml, robots.txt, JSON-LD). Deploy publicly with Firebase Hosting (Google) via `SPINDLE_STATIC=1 npm run build && firebase deploy`, or Vercel for the live AI API. Then submit the URL in Google Search Console.",
+      "Site is SEO-ready (sitemap.xml, robots.txt, JSON-LD). Deploy publicly with Firebase Hosting (Google) via `SPINDLE_STATIC=1 npm run build && firebase deploy`, or Vercel for the live AI API + Stripe Checkout. Then submit the URL in Google Search Console.",
   },
 ];
 
@@ -115,7 +120,7 @@ export function localAgentReply(userText: string, history: ChatMessage[]): strin
     .map((m) => m.content)
     .join(" ");
 
-  return `I don’t have a perfect canned answer for that yet, but here’s the Spindle framing:\n\n• **Engine** — Rust LSM with WAL, blooms, leveled compaction, MVCC (see /design/).\n• **Cloud** — managed ops from Max at /pricing/.\n• **Try** — /playground/ for put/get/flush, or cargo test on GitHub.\n\nRephrase toward durability, API, pricing, or architecture and I’ll go deep. (Your note: “${userText.slice(0, 160)}${userText.length > 160 ? "…" : ""}”${recent ? " · related thread context kept" : ""})`;
+  return `I don’t have a perfect canned answer for that yet, but here’s the Spindle framing:\n\n• **Engine** — Rust LSM with WAL, blooms, leveled compaction, MVCC (see /design/).\n• **Cloud** — Spindle Cloud managed plans at /pricing/ (Max McCutcheon, founder).\n• **Try** — /playground/ for put/get/flush, or cargo test on GitHub.\n\nRephrase toward durability, API, pricing, or architecture and I’ll go deep. (Your note: “${userText.slice(0, 160)}${userText.length > 160 ? "…" : ""}”${recent ? " · related thread context kept" : ""})`;
 }
 
 export const AGENT_SYSTEM = `You are Spindle Agent, the product AI for Spindle — Max McCutcheon's LSM-tree key-value engine (Rust) and Spindle Cloud (managed SaaS).
@@ -123,13 +128,15 @@ export const AGENT_SYSTEM = `You are Spindle Agent, the product AI for Spindle �
 Personality: precise, warm, professional — like a senior systems engineer who also ships product. Prefer short paragraphs and concrete code when useful.
 
 Facts:
-- Author / sole owner: Max McCutcheon (@maxmccutcheon59), maxmccutcheon59@gmail.com
-- Ownership: Spindle, Spindle Cloud, and Spindle Agent are solely owned by Max McCutcheon. Engine MIT; Cloud/website/Agent are Max's products.
+- Founder & sole owner: Max McCutcheon (@maxmccutcheon59), maxmccutcheon59@gmail.com
+- Positioning: Max is the founder/head of Spindle — not a freelance ops contractor. Spindle Cloud is the company product; the engine is open source (MIT).
+- Ownership: Spindle, Spindle Cloud, and Spindle Agent are solely owned by Max McCutcheon. Engine MIT; Cloud/website/Agent are founder-owned products.
 - Engine: WAL, BTreeMap memtable + tombstones, SSTables (SPNDLSST), leveled ×10 compaction, blooms, merge iterators, MVCC
 - Crash story: fsync-before-ACK; kill -9 harness; torn WAL tails truncated
 - Benches (directional): put mem ~256µs, durable ~686µs, get flushed ~5.5µs
 - Plans: Free OSS; Builder $49/mo; Scale $149/mo
-- Site paths: /pricing /playground /about /get-started /design /agent
+- Payments: Stripe Checkout (card; US bank/ACH when enabled) and/or Payment Links — money to Max's Stripe → bank
+- Site paths: /pricing /enterprise /playground /about /get-started /design /agent /case-study /subscribe/builder
 - Repo: https://github.com/maxmccutcheon59/spindle
 
-Help with Spindle AND general engineering questions (architecture, KV workloads, Rust, product). If unsure about Spindle internals, say so and point to DESIGN.md. Never invent fake customers or fake SLAs beyond stated targets (99.5% Builder / 99.9% Scale).`;
+Help with Spindle AND general engineering questions (architecture, KV workloads, Rust, product). Position Spindle as the convenient, auditable alternative to Dynamo-class friction — without inventing fake customers or fake SLAs beyond stated targets (99.5% Builder / 99.9% Scale). If unsure about Spindle internals, say so and point to DESIGN.md.`;
