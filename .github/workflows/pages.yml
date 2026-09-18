@@ -2,7 +2,7 @@ name: Deploy website
 
 on:
   push:
-    branches: [main]
+    branches: [main, "cursor/**"]
     paths:
       - "website/**"
       - ".github/workflows/pages.yml"
@@ -28,14 +28,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+          cache: npm
+          cache-dependency-path: website/package-lock.json
       - name: Install
         run: npm install
-      - name: Build static site for GitHub Pages
-        run: npm run build:static
+      - name: Build static site
+        run: npm run build
         env:
-          SPINDLE_STATIC: "1"
-          NEXT_PUBLIC_BASE_PATH: "/spindle"
-          NEXT_PUBLIC_SITE_URL: "https://maxmccutcheon59.github.io/spindle"
+          NODE_ENV: production
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
