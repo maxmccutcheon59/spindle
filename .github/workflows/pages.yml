@@ -28,8 +28,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+          cache: npm
+          cache-dependency-path: website/package-lock.json
       - name: Install
-        run: npm install
+        run: npm ci
       - name: Build static site
         run: npm run build
         env:
