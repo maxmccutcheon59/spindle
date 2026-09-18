@@ -25,8 +25,8 @@ const mono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
-    default: `Spindle by Max McCutcheon — LSM storage & Spindle Cloud`,
-    template: `%s · Spindle by Max McCutcheon`,
+    default: `${site.name} — by ${site.author.name}`,
+    template: `%s · ${site.name}`,
   },
   description: site.description,
   applicationName: site.product,
@@ -39,13 +39,13 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: site.url,
-    siteName: `Spindle by Max McCutcheon`,
-    title: `Spindle by Max McCutcheon — LSM storage & Spindle Cloud`,
+    siteName: `${site.name} by ${site.author.name}`,
+    title: `${site.name} — by ${site.author.name}`,
     description: site.description,
   },
   twitter: {
     card: "summary_large_image",
-    title: `Spindle by Max McCutcheon`,
+    title: `${site.name} — by ${site.author.name}`,
     description: site.description,
     creator: `@${site.author.handle}`,
   },
@@ -57,17 +57,9 @@ export const metadata: Metadata = {
       follow: true,
       "max-image-preview": "large",
       "max-snippet": -1,
-      "max-video-preview": -1,
     },
   },
   category: "technology",
-  ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
-    ? {
-        verification: {
-          google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
-        },
-      }
-    : {}),
 };
 
 const jsonLd = [
