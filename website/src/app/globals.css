@@ -109,6 +109,12 @@
       linear-gradient(180deg, #eef4f7 0%, #e6eef2 40%, #dce8ee 100%);
     background-attachment: fixed;
     min-height: 100vh;
+    text-rendering: optimizeLegibility;
+  }
+
+  a,
+  button {
+    touch-action: manipulation;
   }
 
   ::selection {
