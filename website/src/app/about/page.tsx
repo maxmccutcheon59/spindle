@@ -19,7 +19,7 @@ export default function AboutPage() {
       <SiteHeader />
       <main className="mx-auto max-w-3xl px-5 py-12 md:px-8 md:py-16">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-deep">
-          Maker
+          Founder
         </p>
         <h1 className="mt-3 font-[family-name:var(--font-display)] text-4xl font-extrabold tracking-tight text-ink md:text-5xl">
           {site.author.name}
@@ -50,9 +50,19 @@ export default function AboutPage() {
             receipt.
           </p>
           <p className="leading-relaxed text-ink/90">
-            Spindle Cloud is the paid layer: same engine, managed ops, Stripe
-            subscriptions. Source is MIT. If you want me to run it, that&apos;s
-            Builder or Scale.
+            Spindle Cloud is the company product on top of that engine —
+            managed durability, Stripe subscriptions, same codebase. I&apos;m
+            the founder. Source stays MIT; Builder and Scale are the hosted
+            plans.
+          </p>
+          <p className="leading-relaxed text-ink/90">
+            <strong className="text-ink">Legal stance today:</strong> there is
+            no separate corporation yet — you contract with me, {site.author.name}.
+            When I register an LLC/Corp, Spindle IP and Cloud contracts assign
+            into that entity. The product stays storage infrastructure SaaS
+            (KV / Cloud / Agent on top of our engine) — not a rebrand into
+            robotics or a generic “AI holding company.” Expansion happens from
+            a working Spindle, not a slogan.
           </p>
         </div>
         <dl className="mt-12 grid gap-6 sm:grid-cols-2">

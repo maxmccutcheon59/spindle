@@ -25,7 +25,15 @@ export default function GetStartedPage() {
           Clone, test, put a key.
         </h1>
         <p className="mt-5 text-lg leading-relaxed text-muted-foreground">
-          Spindle is a Rust crate. Rust 1.85+, then the usual cargo loop.
+          Spindle is a Rust crate. Rust 1.85+, then the usual cargo loop. Prefer
+          managed Cloud?{" "}
+          <a
+            href="/subscribe/builder/"
+            className="font-medium text-teal-deep underline-offset-2 hover:underline"
+          >
+            Subscribe with Stripe
+          </a>{" "}
+          — available to every customer.
         </p>
 
         <ol className="mt-10 space-y-8">

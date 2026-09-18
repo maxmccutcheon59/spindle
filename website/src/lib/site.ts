@@ -19,7 +19,7 @@ export const site = {
     bio: "Founder of Spindle. I build storage companies can defend — durable puts, readable engines, and Cloud convenience without hyperscaler lock-in.",
   },
   ownership:
-    "Spindle, Spindle Cloud, and Spindle Agent are founded and solely owned by Max McCutcheon (maxmccutcheon59@gmail.com). The open-source engine is MIT-licensed; the Cloud product, website, branding, and Agent are company assets of the founder.",
+    "Spindle, Spindle Cloud, and Spindle Agent are founded and solely owned by Max McCutcheon (maxmccutcheon59@gmail.com). Until a formal company entity is registered, all rights, trademarks-in-use, Cloud product, website, branding, and Agent remain with the founder personally. The open-source engine is MIT-licensed; Cloud and Agent are proprietary company assets of the founder and may be assigned to a future LLC/Corp Max forms.",
   keywords: [
     "Spindle",
     "Spindle Cloud",
