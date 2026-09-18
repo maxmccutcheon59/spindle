@@ -20,7 +20,7 @@ const notes = [
   },
   {
     title: "WAL + fsync",
-    body: "Append-before-memtable. EveryWrite by default; group-commit optional. If we die after fsync but before memtable insert, replay restores the ACK'd write.",
+    body: "Append-before-memtable. EveryWrite by default; group-commit optional. If we die after fsync but before memtable insert, replay restores the ACK’d write.",
   },
   {
     title: "SSTable layout",
@@ -48,7 +48,7 @@ export default function DesignPage() {
           Defend every choice.
         </h1>
         <p className="mt-5 text-lg leading-relaxed text-muted-foreground">
-          Spindle's interview value is being able to walk the write path, the
+          Spindle’s interview value is being able to walk the write path, the
           crash story, and the compaction amp without flipping open a wiki.
           This page is the short map — the long form lives in the repo.
         </p>
