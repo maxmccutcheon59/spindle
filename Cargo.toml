@@ -1,0 +1,54 @@
+[package]
+name = "spindle"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.85"
+authors = ["Max McCutcheon <maxmccutcheon59@gmail.com>"]
+license = "MIT"
+description = "An LSM-tree storage engine in Rust"
+readme = "README.md"
+repository = "https://github.com/maxmccutcheon59/spindle"
+keywords = ["lsm", "database", "storage", "kv"]
+categories = ["database-implementations"]
+
+[dependencies]
+crc32fast = "1.4"
+parking_lot = "0.12"
+thiserror = "2.0"
+crossbeam-channel = "0.5"
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+proptest = "1.5"
+tempfile = "3.14"
+rand = "0.8"
+
+[features]
+default = []
+# Optional RocksDB comparison bench. Enable with:
+#   cargo bench --bench rocksdb_compare --features rocksdb-bench
+rocksdb-bench = ["dep:rocksdb"]
+
+[dependencies.rocksdb]
+version = "0.22"
+optional = true
+default-features = false
+features = ["lz4"]
+
+[[bench]]
+name = "basic"
+harness = false
+
+[[bench]]
+name = "rocksdb_compare"
+harness = false
+required-features = ["rocksdb-bench"]
+
+[[bin]]
+name = "crash_child"
+path = "src/bin/crash_child.rs"
+doc = false
+
+[profile.bench]
+lto = true
+codegen-units = 1
