@@ -6,7 +6,7 @@ export const site = {
     "Spindle is Max McCutcheon's LSM-tree storage engine in Rust — WAL, leveled compaction, MVCC, crash tests — with Spindle Cloud for managed subscriptions. Portfolio-grade systems software you can read and run.",
   url:
     process.env.NEXT_PUBLIC_SITE_URL ??
-    "https://spindle-cloud.web.app",
+    "https://maxmccutcheon59.github.io/spindle",
   github: "https://github.com/maxmccutcheon59/spindle",
   design:
     "https://github.com/maxmccutcheon59/spindle/blob/main/DESIGN.md",
@@ -24,6 +24,10 @@ export const site = {
     "Spindle",
     "Spindle Cloud",
     "Max McCutcheon",
+    "maxmccutcheon59",
+    "Max McCutcheon Spindle",
+    "Spindle LSM",
+    "Spindle Rust",
     "LSM tree",
     "Rust storage engine",
     "managed key-value store",
