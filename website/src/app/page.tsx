@@ -1,4 +1,4 @@
-import { benches, saasPromises, site, stack } from "@/lib/site";
+import { benches, credentials, saasPromises, site, stack } from "@/lib/site";
 import { LsmHeroVisual } from "@/components/lsm-hero-visual";
 import {
   CtaLink,
@@ -17,18 +17,20 @@ export default function HomePage() {
             <p className="animate-rise font-[family-name:var(--font-display)] text-5xl font-extrabold leading-[0.92] tracking-tight text-ink sm:text-6xl md:text-7xl lg:text-8xl">
               {site.name}
             </p>
-            <h1 className="animate-rise-delay-1 mt-6 max-w-xl text-2xl font-semibold leading-snug text-ink/90 md:text-3xl">
+            <p className="animate-rise-delay-1 mt-3 text-sm font-semibold tracking-wide text-teal-deep md:text-base">
+              by {site.author.name}
+            </p>
+            <h1 className="animate-rise-delay-1 mt-5 max-w-xl text-2xl font-semibold leading-snug text-ink/90 md:text-3xl">
               Managed LSM storage worth the subscription.
             </h1>
             <p className="animate-rise-delay-2 mt-5 max-w-lg text-base leading-relaxed text-muted-foreground md:text-lg">
-              {site.product} runs the crash-tested Rust engine for you —
-              durable puts, leveled compaction, MVCC — with a bill you can
-              defend. Open source when you want the keys.
+              A crash-tested Rust key-value engine — WAL, leveled compaction,
+              MVCC — with {site.product} when you want Max running it for you.
             </p>
             <div className="animate-rise-delay-3 mt-8 flex flex-wrap gap-3">
-              <CtaLink href="/pricing/">See pricing</CtaLink>
-              <CtaLink href="/subscribe/builder/" variant="ghost">
-                Start Builder · $49/mo
+              <CtaLink href="/agent/">Talk to Spindle Agent</CtaLink>
+              <CtaLink href="/pricing/" variant="ghost">
+                See pricing
               </CtaLink>
             </div>
           </div>
@@ -38,7 +40,29 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="border-y border-border/80 bg-card/60 backdrop-blur-sm">
+        <section className="border-y border-border/70 bg-ink text-mist">
+          <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-5 py-8 md:grid-cols-4 md:px-8">
+            {credentials.map((c) => (
+              <div key={c.label}>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-sand/80">
+                  {c.label}
+                </p>
+                {c.label === "Email" ? (
+                  <a
+                    href={`mailto:${c.value}`}
+                    className="mt-1 block font-mono text-sm text-sand underline-offset-2 hover:text-white hover:underline"
+                  >
+                    {c.value}
+                  </a>
+                ) : (
+                  <p className="mt-1 font-mono text-sm text-mist">{c.value}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="border-b border-border/80 bg-card/60 backdrop-blur-sm">
           <div className="mx-auto max-w-6xl px-5 py-16 md:px-8 md:py-20">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-deep">
               Why teams pay
@@ -72,10 +96,9 @@ export default function HomePage() {
             One write path. One read path. No mystery boxes.
           </h2>
           <p className="mt-4 max-w-2xl text-muted-foreground">
-            Cloud sits on the same LevelDB-shaped core you can audit on GitHub —
-            small enough to read, serious enough to sell.
+            Cloud sits on the same LevelDB-shaped core Max published — small
+            enough to audit, serious enough to sell.
           </p>
-
           <div className="mt-12 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
             {stack.map((item) => (
               <article key={item.title}>
@@ -113,7 +136,6 @@ export default function HomePage() {
               </a>
               .
             </p>
-
             <div className="mt-10 grid gap-6 md:grid-cols-3">
               {benches.map((bench) => (
                 <div key={bench.name} className="border-l-2 border-teal pl-5">
@@ -127,6 +149,33 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
+            <p className="mt-8 text-sm text-muted-foreground">
+              Questions for the owner?{" "}
+              <a
+                className="font-semibold text-teal-deep underline-offset-2 hover:underline"
+                href={`mailto:${site.author.email}`}
+              >
+                {site.author.email}
+              </a>
+            </p>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-5 py-16 md:px-8 md:py-20">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-deep">
+            Maker
+          </p>
+          <h2 className="mt-3 font-[family-name:var(--font-display)] text-3xl font-bold tracking-tight text-ink md:text-4xl">
+            {site.author.name}
+          </h2>
+          <p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+            {site.author.bio}
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <CtaLink href="/about/">About Max</CtaLink>
+            <CtaLink href={site.author.github} external variant="ghost">
+              @{site.author.handle}
+            </CtaLink>
           </div>
         </section>
 
@@ -137,8 +186,8 @@ export default function HomePage() {
                 Start Cloud today. Keep the source forever.
               </h2>
               <p className="mt-3 max-w-xl text-mist/75">
-                Builder is $49/mo. Scale is $149/mo. Or clone the engine and pay
-                nothing but your own disk.
+                Builder is $49/mo. Scale is $149/mo. Or clone Max&apos;s engine
+                and pay nothing but your own disk.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -149,11 +198,11 @@ export default function HomePage() {
                 Subscribe · Builder
               </CtaLink>
               <CtaLink
-                href="/pricing/"
+                href="/playground/"
                 variant="ghost"
                 className="text-mist ring-mist/30 hover:bg-white/5"
               >
-                Compare plans
+                Open playground
               </CtaLink>
             </div>
           </div>
