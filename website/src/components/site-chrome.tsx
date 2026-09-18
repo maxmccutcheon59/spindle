@@ -4,9 +4,9 @@ import { cn } from "@/lib/utils";
 
 const links = [
   { href: "/#engine", label: "Engine" },
-  { href: "/#numbers", label: "Numbers" },
+  { href: "/pricing/", label: "Pricing" },
   { href: "/design/", label: "Design" },
-  { href: "/get-started/", label: "Get started" },
+  { href: "/get-started/", label: "Docs" },
 ] as const;
 
 export function SiteHeader() {
@@ -31,23 +31,19 @@ export function SiteHeader() {
             {link.label}
           </Link>
         ))}
-        <a
-          href={site.github}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="rounded-md bg-ink px-3.5 py-2 text-sm font-semibold text-mist transition-transform hover:-translate-y-0.5"
+        <Link
+          href="/subscribe/builder/"
+          className="rounded-md bg-teal px-3.5 py-2 text-sm font-semibold text-primary-foreground transition-transform hover:-translate-y-0.5 hover:bg-teal-deep"
         >
-          GitHub
-        </a>
+          Start · $49/mo
+        </Link>
       </nav>
-      <a
-        href={site.github}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="rounded-md bg-ink px-3 py-2 text-sm font-semibold text-mist md:hidden"
+      <Link
+        href="/pricing/"
+        className="rounded-md bg-teal px-3 py-2 text-sm font-semibold text-primary-foreground md:hidden"
       >
-        GitHub
-      </a>
+        Pricing
+      </Link>
     </header>
   );
 }
@@ -61,40 +57,45 @@ export function SiteFooter() {
             {site.name}
           </p>
           <p className="mt-3 max-w-sm text-sm leading-relaxed text-mist/75">
-            Built by {site.author.name} as a portfolio storage engine — small
-            enough to read, serious enough to defend in an interview.
+            {site.product} — managed LSM storage on an open-source Rust engine
+            by {site.author.name}.
           </p>
         </div>
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sand">
-            Project
+            Product
           </p>
           <ul className="mt-3 space-y-2 text-sm">
             <li>
-              <a className="hover:text-white" href={site.github}>
-                Source on GitHub
-              </a>
+              <Link className="hover:text-white" href="/pricing/">
+                Pricing
+              </Link>
             </li>
             <li>
-              <a className="hover:text-white" href={site.design}>
-                DESIGN.md
-              </a>
+              <Link className="hover:text-white" href="/subscribe/builder/">
+                Start Builder
+              </Link>
             </li>
             <li>
               <Link className="hover:text-white" href="/get-started/">
-                Get started
+                Docs
               </Link>
             </li>
           </ul>
         </div>
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sand">
-            Elsewhere
+            Open source
           </p>
           <ul className="mt-3 space-y-2 text-sm">
             <li>
-              <a className="hover:text-white" href={site.author.github}>
-                @maxmccutcheon59
+              <a className="hover:text-white" href={site.github}>
+                GitHub
+              </a>
+            </li>
+            <li>
+              <a className="hover:text-white" href={site.design}>
+                DESIGN.md
               </a>
             </li>
             <li>
@@ -109,7 +110,8 @@ export function SiteFooter() {
         </div>
       </div>
       <div className="border-t border-white/10 px-5 py-4 text-center text-xs text-mist/55 md:px-8">
-        © {new Date().getFullYear()} {site.author.name}. Spindle is open source.
+        © {new Date().getFullYear()} {site.author.name}. Engine MIT · Cloud
+        subscriptions billed via Stripe.
       </div>
     </footer>
   );
