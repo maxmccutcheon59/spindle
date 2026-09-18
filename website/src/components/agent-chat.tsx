@@ -1,15 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import {
-  localAgentReply,
-  type ChatMessage,
-} from "@/lib/agent-brain";
+import type { ChatMessage } from "@/lib/agent-brain";
 import { cn } from "@/lib/utils";
 
 const STARTERS = [
   "What happens if we crash after WAL fsync?",
-  "Builder vs Scale — which should I pick?",
+  "Builder vs Scale \u2014 which should I pick?",
   "Show me the Rust put/get API",
   "Does Spindle fit a session store?",
 ] as const;
@@ -21,7 +18,7 @@ export function AgentChat({ compact = false }: { compact?: boolean }) {
     {
       role: "assistant",
       content:
-        "I’m Spindle Agent — Max McCutcheon’s AI for the engine and Cloud. Ask about durability, pricing, APIs, or your workload.",
+        "I\u2019m Spindle Agent \u2014 Max McCutcheon\u2019s AI for the engine and Cloud. Ask about durability, pricing, APIs, or your workload.",
     },
   ]);
   const [input, setInput] = useState("");
@@ -40,38 +37,30 @@ export function AgentChat({ compact = false }: { compact?: boolean }) {
     setMessages(next);
     setInput("");
     setBusy(true);
-    const payload: ChatMessage[] = next.map((m) => ({
-      role: m.role,
-      content: m.content,
-    }));
     try {
+      const payload: ChatMessage[] = next.map((m) => ({
+        role: m.role,
+        content: m.content,
+      }));
       const res = await fetch("/api/agent/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: payload }),
       });
-      if (res.ok) {
-        const data = (await res.json()) as { reply?: string; mode?: string };
-        if (data.reply) {
-          setMode(data.mode ?? "api");
-          setMessages((m) => [
-            ...m,
-            { role: "assistant", content: data.reply! },
-          ]);
-          return;
-        }
+      const data = (await res.json()) as { reply?: string; mode?: string; error?: string };
+      if (!res.ok || !data.reply) {
+        throw new Error(data.error || "Agent unavailable");
       }
-      await new Promise((r) => setTimeout(r, 200));
-      setMode("local");
-      setMessages((m) => [
-        ...m,
-        { role: "assistant", content: localAgentReply(trimmed, payload) },
-      ]);
+      setMode(data.mode ?? null);
+      setMessages((m) => [...m, { role: "assistant", content: data.reply! }]);
     } catch {
-      setMode("local");
       setMessages((m) => [
         ...m,
-        { role: "assistant", content: localAgentReply(trimmed, payload) },
+        {
+          role: "assistant",
+          content:
+            "I couldn\u2019t reach the agent API. If you\u2019re on a static export, run `npm run dev` (server mode) or deploy to Vercel with the API route. You can still use /playground/ and /docs.",
+        },
       ]);
     } finally {
       setBusy(false);
@@ -91,11 +80,11 @@ export function AgentChat({ compact = false }: { compact?: boolean }) {
             Spindle Agent
           </p>
           <p className="text-[11px] text-mist/60">
-            by Max McCutcheon ·{" "}
+            by Max McCutcheon \u00b7{" "}
             {mode === "openai"
               ? "GPT connected"
               : mode === "local" || mode === "local-fallback"
-                ? "Spindle brain"
+                ? "On-device Spindle brain"
                 : "Ready"}
           </p>
         </div>
@@ -153,7 +142,7 @@ export function AgentChat({ compact = false }: { compact?: boolean }) {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask Spindle Agent…"
+          placeholder="Ask Spindle Agent\u2026"
           className="flex-1 rounded-xl border border-border bg-card px-4 py-3 text-sm text-ink outline-none ring-teal focus:ring-2"
           disabled={busy}
           autoComplete="off"
