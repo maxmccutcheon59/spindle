@@ -9,3 +9,8 @@
 /bench-results/
 /crash-workdir/
 agent-tools/
+website/node_modules/
+website/.next/
+website/out/
+website/.turbo/
+*.cargo_lock_mcp*.json
