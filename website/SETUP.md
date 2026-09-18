@@ -51,17 +51,19 @@ Webhook (Dashboard → Developers → Webhooks):
 - URL: `https://your-domain.com/api/webhooks/stripe`
 - Events: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`
 
-#### Option 2 — Payment Links (works on GitHub Pages)
+#### Option 2 — Payment Links (works on GitHub Pages — every public customer)
 
 1. On each Price → **Create payment link**
-2. Paste into env (even on static Pages builds):
+2. Paste into env (local) **and** GitHub → **Settings → Secrets and variables → Actions**:
 
-```bash
-NEXT_PUBLIC_STRIPE_PAYMENT_LINK_BUILDER=https://buy.stripe.com/...
-NEXT_PUBLIC_STRIPE_PAYMENT_LINK_SCALE=https://buy.stripe.com/...
-```
+| Secret name | Value |
+|-------------|--------|
+| `NEXT_PUBLIC_STRIPE_PAYMENT_LINK_BUILDER` | `https://buy.stripe.com/...` |
+| `NEXT_PUBLIC_STRIPE_PAYMENT_LINK_SCALE` | `https://buy.stripe.com/...` |
 
-Checkout tries **API first**, then **Payment Links**, then demo mode if neither is set.
+3. Re-run **Deploy website** workflow (or push to `main`). The Pages build bakes the links into the static site so **every visitor worldwide** can pay by card/bank.
+
+Checkout order: **API first** → **Payment Links** → on localhost demo → on public site **email Max** until links exist (never fake-charges customers).
 
 ### E. Test without real money
 
