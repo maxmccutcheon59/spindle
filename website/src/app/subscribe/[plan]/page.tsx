@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { SubscribeClient } from "@/components/subscribe-client";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
@@ -35,7 +36,15 @@ export default async function SubscribePlanPage({
     <div>
       <SiteHeader />
       <main className="px-5 py-12 md:px-8 md:py-16">
-        <SubscribeClient planId={plan as PlanId} />
+        <Suspense
+          fallback={
+            <p className="mx-auto max-w-lg text-muted-foreground">
+              Loading checkout…
+            </p>
+          }
+        >
+          <SubscribeClient planId={plan as PlanId} />
+        </Suspense>
       </main>
       <SiteFooter />
     </div>
