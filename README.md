@@ -1,17 +1,14 @@
 # Spindle
 
 [![CI](https://github.com/maxmccutcheon59/spindle/actions/workflows/ci.yml/badge.svg)](https://github.com/maxmccutcheon59/spindle/actions/workflows/ci.yml)
-[![Site](https://img.shields.io/badge/site-GitHub%20Pages-0f7a7a)](https://maxmccutcheon59.github.io/spindle/)
 
-**Spindle** by **[Max McCutcheon](https://github.com/maxmccutcheon59)** · [maxmccutcheon59@gmail.com](mailto:maxmccutcheon59@gmail.com)
+**By [Max McCutcheon](https://github.com/maxmccutcheon59)** · **Email:** [maxmccutcheon59@gmail.com](mailto:maxmccutcheon59@gmail.com)
 
-LSM-tree key-value engine in Rust + **Spindle Cloud** ($49 / $149) + **Spindle Agent** (AI).
+Rust LSM-tree KV engine + **Spindle Cloud** ($49 / $149) + **Spindle Agent** (built-in AI).
 
-**Public website (Google):** [https://maxmccutcheon59.github.io/spindle/](https://maxmccutcheon59.github.io/spindle/)  
-**Repo:** [github.com/maxmccutcheon59/spindle](https://github.com/maxmccutcheon59/spindle)  
-**Ownership:** Solely owned by Max McCutcheon.
+**Ownership:** Spindle, Spindle Cloud, and Spindle Agent are solely owned and operated by Max McCutcheon. Engine is MIT; Cloud, website, branding, and Agent are Max’s.
 
-Search tips after Pages is live: `Max McCutcheon Spindle`, `Spindle Cloud Max McCutcheon`, `maxmccutcheon59 spindle`.
+**Live site:** [http://127.0.0.1:43123](http://127.0.0.1:43123/) · **Agent:** [/agent](http://127.0.0.1:43123/agent/) · **About:** [/about](http://127.0.0.1:43123/about/) · [`DESIGN.md`](DESIGN.md)
 
 ## Engine
 
@@ -25,7 +22,7 @@ let db = Db::open(Options::new("./spindle-data"))?;
 db.put(b"hello", b"world")?;
 ```
 
-## Website
+## Website + AI Agent
 
 ```bash
 cd website && cp .env.example .env.local && npm install && npm run dev
@@ -33,12 +30,12 @@ cd website && cp .env.example .env.local && npm install && npm run dev
 
 | Path | What |
 |------|------|
-| `/agent/` | Spindle Agent AI |
+| `/agent/` | Spindle Agent (GPT if `OPENAI_API_KEY`, else Spindle brain) |
 | `/playground/` | put/get/flush demo |
 | `/pricing/` | Free · Builder $49 · Scale $149 |
-| `/about/` | Max McCutcheon · email |
+| `/about/` | Max McCutcheon |
 
-**Go live on Google:** enable **Settings → Pages → GitHub Actions**, then Actions → “Deploy website”. Submit `https://maxmccutcheon59.github.io/spindle/sitemap.xml` in [Google Search Console](https://search.google.com/search-console).
+Deploy: Vercel for AI API, or Firebase (`SPINDLE_STATIC=1`) for Google Hosting — see `website/README.md`. Contact: maxmccutcheon59@gmail.com
 
 ## License
 
