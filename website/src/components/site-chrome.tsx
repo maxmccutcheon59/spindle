@@ -3,11 +3,12 @@ import { site } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 const links = [
+  { href: "/enterprise/", label: "Enterprise" },
   { href: "/agent/", label: "Agent" },
   { href: "/playground/", label: "Playground" },
   { href: "/pricing/", label: "Pricing" },
+  { href: "/case-study/", label: "Case study" },
   { href: "/about/", label: "About" },
-  { href: "/get-started/", label: "Docs" },
 ] as const;
 
 export function SiteHeader() {
@@ -85,7 +86,7 @@ export function SiteFooter() {
             {site.name}
           </p>
           <p className="mt-1 text-sm text-sand">
-            Built & operated by {site.author.name}
+            Founded by {site.author.name}
           </p>
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-mist/75">
             {site.author.bio}
@@ -104,6 +105,16 @@ export function SiteFooter() {
             Product
           </p>
           <ul className="mt-3 space-y-2 text-sm">
+            <li>
+              <Link className="hover:text-white" href="/enterprise/">
+                Enterprise
+              </Link>
+            </li>
+            <li>
+              <Link className="hover:text-white" href="/case-study/">
+                Case study
+              </Link>
+            </li>
             <li>
               <Link className="hover:text-white" href="/pricing/">
                 Pricing
@@ -133,7 +144,7 @@ export function SiteFooter() {
         </div>
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sand">
-            Maker
+            Founder
           </p>
           <ul className="mt-3 space-y-2 text-sm">
             <li>

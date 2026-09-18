@@ -2,17 +2,21 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import type { PlanId } from "@/lib/site";
-import { plans, stripePaymentLink } from "@/lib/site";
+import { plans } from "@/lib/site";
+import { stripePaymentLink } from "@/lib/stripe";
 
 export function SubscribeClient({ planId }: { planId: PlanId }) {
   const router = useRouter();
+  const search = useSearchParams();
+  const canceled = search.get("canceled") === "1";
   const plan = plans.find((p) => p.id === planId);
   const liveLink = useMemo(() => stripePaymentLink(planId), [planId]);
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mode, setMode] = useState<"live" | "link" | "demo" | null>(null);
 
   if (!plan || plan.id === "free") {
     return (
@@ -29,20 +33,43 @@ export function SubscribeClient({ planId }: { planId: PlanId }) {
     e.preventDefault();
     setError(null);
     if (!email.includes("@")) {
-      setError("Enter a real email so we can send the receipt.");
+      setError("Enter a real email so Stripe can send the receipt.");
       return;
     }
     setBusy(true);
 
+    // 1) Prefer live Checkout API (card + optional US bank → money to your Stripe).
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan: planId, email }),
+      });
+      if (res.ok) {
+        const data = (await res.json()) as { url?: string };
+        if (data.url) {
+          setMode("live");
+          window.location.href = data.url;
+          return;
+        }
+      }
+      // 503 / missing keys → fall through to Payment Link or demo
+    } catch {
+      // Static host / offline API — fall through
+    }
+
+    // 2) Stripe Payment Links (works on GitHub Pages — still real charges).
     if (liveLink) {
+      setMode("link");
       const url = new URL(liveLink);
       url.searchParams.set("prefilled_email", email);
       window.location.href = url.toString();
       return;
     }
 
-    // Demo checkout — proves the paid flow without Stripe keys.
-    await new Promise((r) => setTimeout(r, 900));
+    // 3) Demo only when Stripe is not configured yet.
+    setMode("demo");
+    await new Promise((r) => setTimeout(r, 700));
     sessionStorage.setItem(
       "spindle_demo_sub",
       JSON.stringify({ plan: planId, email, at: Date.now() }),
@@ -62,6 +89,12 @@ export function SubscribeClient({ planId }: { planId: PlanId }) {
         </span>
       </h1>
       <p className="mt-3 text-muted-foreground">{plan.blurb}</p>
+
+      {canceled ? (
+        <p className="mt-4 border-l-2 border-sand bg-card/70 px-3 py-2 text-sm text-ink/90">
+          Checkout canceled — no charge. You can try again anytime.
+        </p>
+      ) : null}
 
       <form onSubmit={onSubmit} className="mt-8 space-y-4">
         <label className="block text-sm font-medium text-ink">
@@ -89,18 +122,28 @@ export function SubscribeClient({ planId }: { planId: PlanId }) {
           className="inline-flex w-full items-center justify-center rounded-md bg-teal px-5 py-3 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-0.5 hover:bg-teal-deep disabled:opacity-60"
         >
           {busy
-            ? "Redirecting…"
-            : liveLink
-              ? `Pay ${plan.price}${plan.period} with Stripe`
-              : `Start demo checkout · ${plan.price}${plan.period}`}
+            ? mode === "demo"
+              ? "Finishing demo…"
+              : "Opening secure checkout…"
+            : `Pay ${plan.price}${plan.period} — card or bank`}
         </button>
       </form>
 
-      <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
-        {liveLink
-          ? "Secure checkout is hosted by Stripe. You can cancel from the customer portal."
-          : "Demo mode: no Stripe keys configured. Completing this flow stores a local demo subscription so you can walk the SaaS UX. Add Payment Links in .env for live charges."}
-      </p>
+      <div className="mt-4 space-y-2 text-xs leading-relaxed text-muted-foreground">
+        <p>
+          Secure checkout is hosted by{" "}
+          <strong className="text-ink/80">Stripe</strong>. Cards worldwide; US
+          bank (ACH) when enabled on the Spindle Stripe account. Money goes to
+          Max McCutcheon&apos;s Stripe balance, then payouts to his bank.
+        </p>
+        {!liveLink ? (
+          <p className="border-l-2 border-border pl-3">
+            If checkout opens in <em>demo mode</em>, Stripe keys are not on this
+            host yet — the founder still needs to paste live keys (see SETUP.md).
+            No real card is charged in demo mode.
+          </p>
+        ) : null}
+      </div>
 
       <ul className="mt-8 space-y-2 border-t border-border/80 pt-6 text-sm text-muted-foreground">
         {plan.features.map((f) => (
