@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack --port 43123 --hostname 127.0.0.1",
     "build": "next build --turbopack",
-    "build:static": "SPINDLE_STATIC=1 next build --turbopack",
+    "build:static": "node scripts/build-static.js",
     "start": "next start --port 43123 --hostname 127.0.0.1",
     "lint": "eslint"
   },
