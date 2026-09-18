@@ -156,16 +156,8 @@ a quiet machine. Do not invent them.
 
 ---
 
-## Reading list (done / in progress)
+## Reading list
 
 1. O'Neil et al., *The Log-Structured Merge-Tree* (1996)
 2. LevelDB source (`db/`, `table/`, `db/version_set.cc`)
 3. Kleppmann, *DDIA*, Chapter 3
-
----
-
-## Portfolio note
-
-Archive `sysguard` and `syslens`. Keep `watchwire` and `proclight`. This
-repo (`spindle`) is the systems deep-dive; those two stay as the
-defensive-CLI / C++ systems signals.
