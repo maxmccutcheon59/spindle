@@ -28,6 +28,7 @@ export const metadata: Metadata = {
     template: `%s · ${site.name}`,
   },
   description: site.description,
+  applicationName: site.product,
   keywords: [...site.keywords],
   authors: [{ name: site.author.name, url: site.author.github }],
   creator: site.author.name,

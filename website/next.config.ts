@@ -1,13 +1,14 @@
 import type { NextConfig } from "next";
 
-const isProd = process.env.NODE_ENV === "production";
+// Static export for Firebase Hosting (Google) + GitHub Pages.
+// Set NEXT_PUBLIC_BASE_PATH=/spindle for project Pages; leave empty for Firebase root.
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 const nextConfig: NextConfig = {
   output: "export",
   images: { unoptimized: true },
-  // GitHub Pages project site: https://maxmccutcheon59.github.io/spindle/
-  basePath: isProd ? "/spindle" : "",
-  assetPrefix: isProd ? "/spindle/" : undefined,
+  basePath: basePath || undefined,
+  assetPrefix: basePath ? `${basePath}/` : undefined,
   trailingSlash: true,
 };
 
