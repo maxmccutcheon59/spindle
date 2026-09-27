@@ -50,10 +50,10 @@ export default function AboutPage() {
             receipt.
           </p>
           <p className="leading-relaxed text-ink/90">
-            Spindle Cloud is the company product on top of that engine —
-            managed durability, Stripe subscriptions, same codebase. I&apos;m
-            the founder. Source stays MIT; Builder and Scale are the hosted
-            plans.
+            Cloud, Stripe, and Agent pages are an early-access experiment I
+            keep next to the crate. They are not a hosted database, and the
+            $49 / $149 figures do not provision storage. The MIT engine is
+            the work I want read.
           </p>
           <p className="leading-relaxed text-ink/90">
             <strong className="text-ink">Legal stance today:</strong> there is
@@ -120,7 +120,7 @@ export default function AboutPage() {
           </div>
         </dl>
         <div className="mt-12 flex flex-wrap gap-3">
-          <CtaLink href="/pricing/">See Cloud pricing</CtaLink>
+          <CtaLink href="/get-started/">Run the demo</CtaLink>
           <CtaLink href={site.github} external variant="ghost">
             Open the engine
           </CtaLink>

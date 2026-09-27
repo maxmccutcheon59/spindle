@@ -6,7 +6,7 @@ const KNOWLEDGE: { keys: string[]; answer: string }[] = [
   {
     keys: ["what is spindle", "spindle?", "about spindle", "overview"],
     answer:
-      "Spindle is Max McCutcheon’s LSM-tree key-value storage engine in Rust — write-ahead log, memtable, block-based SSTables, leveled compaction (×10), bloom filters, range scans, and MVCC. Spindle Cloud is the paid managed layer ($49 Builder / $149 Scale). Open source is MIT on GitHub.",
+      "Spindle is Max McCutcheon’s LSM-tree key-value storage engine in Rust — write-ahead log, memtable, block-based SSTables, leveled compaction (×10), bloom filters, range scans, and MVCC. MIT on GitHub. Cloud, Stripe, and Agent pages are an early-access website experiment: they do not provision a hosted database. Try: cargo run --example quickstart.",
   },
   {
     keys: ["wal", "fsync", "durability", "crash", "kill"],
@@ -41,22 +41,22 @@ const KNOWLEDGE: { keys: string[]; answer: string }[] = [
   {
     keys: ["pricing", "cost", "subscribe", "plan", "builder", "scale", "$", "pay", "stripe", "card", "bank", "ach", "payment"],
     answer:
-      "Plans: Open Source $0 · Builder $49/mo · Scale $149/mo. Real checkout is Stripe — credit card worldwide, US bank (ACH) when enabled. Money goes to Max McCutcheon’s Stripe → his bank. Start at /subscribe/builder/ or /subscribe/scale/. Flat pricing vs Dynamo RCU/WCU theater — see /enterprise/.",
+      "The engine is free (MIT). $49 and $149 on /pricing/ are proposed early-access figures, not live quotas or SLAs. If Stripe keys are configured, a card can be charged to Max McCutcheon; that does not provision storage. See /enterprise/ and /case-study/.",
   },
   {
     keys: ["dynamo", "dynamodb", "aws", "enterprise", "business", "company", "rival", "alternative", "vs", "compete", "lock-in"],
     answer:
-      "Why companies pick Spindle over Dynamo-class KV: (1) flat bills finance can forecast, (2) MIT engine you can open when storage breaks, (3) run in your VPC or on Cloud — no proprietary cage, (4) founder on the email thread, (5) one mental model — keys/values/snapshots. Full brief: /enterprise/. Honest limits: Cloud is early-access; the Rust engine is real today (cargo test).",
+      "Spindle is not a hosted KV product and has no customer base. The real artifact is the MIT Rust LSM (WAL, SSTables, leveled compaction, MVCC, kill -9 tests). Cloud pages are an early-access experiment. Read /enterprise/ and DESIGN.md. Do not treat it as a replacement for an operated database.",
   },
   {
     keys: ["business", "company", "production", "use case", "why"],
     answer:
-      "Teams use Spindle when they want durable KV with an auditable engine and optional managed Cloud — session/metadata stores, feature flags, side indexes, internal tools — without Dynamo capacity planning. Convenience + ownership. See /enterprise/ and /case-study/.",
+      "Spindle is a student systems project: an embedded LSM you compile into a process. There is no production tenant list. Sensible reading is the engine, DESIGN.md, and the quickstart example — not a managed-database pitch. Status: /case-study/.",
   },
   {
     keys: ["start", "install", "cargo", "how to use", "api", "get started"],
     answer:
-      "```bash\ngit clone https://github.com/maxmccutcheon59/spindle.git\ncd spindle && cargo test\n```\n```rust\nuse spindle::{Db, Options};\nlet db = Db::open(Options::new(\"./spindle-data\"))?;\ndb.put(b\"hello\", b\"world\")?;\nassert_eq!(db.get(b\"hello\")?, Some(b\"world\".to_vec()));\n```\nDocs: /get-started/ · Design: /design/ · Playground: /playground/",
+      "```bash\ngit clone https://github.com/maxmccutcheon59/spindle.git\ncd spindle && cargo run --example quickstart\n```\nThat prints put, get, delete, flush, scan, and a reopen. API: Db::open, put, get, delete, flush, scan. Docs: /get-started/ · Design: /design/.",
   },
   {
     keys: ["max", "who", "author", "contact", "email"],
@@ -66,7 +66,7 @@ const KNOWLEDGE: { keys: string[]; answer: string }[] = [
   {
     keys: ["ai", "agent", "chatgpt", "copilot", "llm"],
     answer:
-      "You’re talking to Spindle Agent — Max’s product assistant for Spindle Cloud and the open-source engine. With OPENAI_API_KEY on the server it uses GPT for general reasoning; otherwise I answer from Spindle’s design knowledge and product docs. Ask about durability, pricing, APIs, or how to ship KV workloads.",
+      "You’re talking to Spindle Agent, a small assistant for Max McCutcheon’s open-source LSM. With OPENAI_API_KEY on a server you run, answers can come from GPT; otherwise I use a local script. I will not invent customers or a hosted database. Ask about the WAL, compaction, or the quickstart.",
   },
   {
     keys: ["google", "deploy", "firebase", "hosting", "seo"],
@@ -105,13 +105,13 @@ export function localAgentReply(userText: string, history: ChatMessage[]): strin
 
   // Light conversational fallbacks
   if (/^(hi|hello|hey|yo)\b/.test(q)) {
-    return `Hey — I’m Spindle Agent, built for Max McCutcheon’s storage engine and Cloud product. I can explain the LSM, walk pricing, or help you design a durable put/get path. What are you building?`;
+    return `Hey — I’m Spindle Agent, for Max McCutcheon’s Rust LSM. I can walk the write path, the crash story, or what the website does not ship. What do you want to read?`;
   }
   if (/thank/.test(q)) {
     return "Glad to help. Want the playground next, or shall we dig into WAL fsync vs group commit?";
   }
   if (/help|what can you/.test(q)) {
-    return "I can help with:\n• How Spindle’s WAL / memtable / SSTables / compaction work\n• Crash safety and MVCC\n• Cloud pricing & checkout\n• Getting started with the Rust API\n• Whether Spindle fits your workload\n\nTry: “What happens if we crash after fsync?” or “Compare Builder vs Scale.”";
+    return "I can help with:\n• How Spindle’s WAL / memtable / SSTables / compaction work\n• Crash safety and MVCC\n• What the $49 / $149 pages do and do not include\n• cargo run --example quickstart\n\nTry: “What happens if we crash after fsync?”";
   }
 
   const recent = history
@@ -120,23 +120,26 @@ export function localAgentReply(userText: string, history: ChatMessage[]): strin
     .map((m) => m.content)
     .join(" ");
 
-  return `I don’t have a perfect canned answer for that yet, but here’s the Spindle framing:\n\n• **Engine** — Rust LSM with WAL, blooms, leveled compaction, MVCC (see /design/).\n• **Cloud** — Spindle Cloud managed plans at /pricing/ (Max McCutcheon, founder).\n• **Try** — /playground/ for put/get/flush, or cargo test on GitHub.\n\nRephrase toward durability, API, pricing, or architecture and I’ll go deep. (Your note: “${userText.slice(0, 160)}${userText.length > 160 ? "…" : ""}”${recent ? " · related thread context kept" : ""})`;
+  return `I don’t have a canned answer for that. Here’s the accurate frame:\n\n• **Engine** — Rust LSM with WAL, blooms, leveled compaction, MVCC (see /design/).\n• **Website** — Cloud / Stripe / Agent pages are an early-access experiment. They do not provision storage (/enterprise/).\n• **Try** — cargo run --example quickstart, or /get-started/.\n\nAsk about durability, the API, or what ships. (Your note: “${userText.slice(0, 160)}${userText.length > 160 ? "…" : ""}”${recent ? " · related thread context kept" : ""})`;
 }
 
-export const AGENT_SYSTEM = `You are Spindle Agent, the product AI for Spindle — Max McCutcheon's LSM-tree key-value engine (Rust) and Spindle Cloud (managed SaaS).
+export const AGENT_SYSTEM = `You are Spindle Agent, a small assistant for Spindle — Max McCutcheon's LSM-tree key-value engine in Rust (MIT, version 0.1.0).
 
-Personality: precise, warm, professional — like a senior systems engineer who also ships product. Prefer short paragraphs and concrete code when useful.
+Personality: precise and plain. Prefer short paragraphs and concrete code when useful. Never invent customers, traction, SLAs, or production parity with a hosted database.
 
 Facts:
-- Founder & sole owner: Max McCutcheon (@maxmccutcheon59), maxmccutcheon59@gmail.com
-- Positioning: Max is the founder/head of Spindle — not a freelance ops contractor. Spindle Cloud is the company product; the engine is open source (MIT).
-- Ownership: Spindle, Spindle Cloud, and Spindle Agent are solely owned by Max McCutcheon. Engine MIT; Cloud/website/Agent are founder-owned products.
+- Author: Max McCutcheon (@maxmccutcheon59), maxmccutcheon59@gmail.com. No company is registered.
+- The hiring artifact is the engine. Cloud, Stripe, and Agent pages are an early-access website experiment.
 - Engine: WAL, BTreeMap memtable + tombstones, SSTables (SPNDLSST), leveled ×10 compaction, blooms, merge iterators, MVCC
+- Public API: Db::open, put, get, delete, flush, scan, snapshot / get_snapshot / scan_snapshot
+- Demo: cargo run --example quickstart
 - Crash story: fsync-before-ACK; kill -9 harness; torn WAL tails truncated
-- Benches (directional): put mem ~256µs, durable ~686µs, get flushed ~5.5µs
-- Plans: Free OSS; Builder $49/mo; Scale $149/mo
-- Payments: Stripe Checkout (card; US bank/ACH when enabled) and/or Payment Links — money to Max's Stripe → bank
-- Site paths: /pricing /enterprise /playground /about /get-started /design /agent /case-study /subscribe/builder
+- Known limit: compaction drops older versions even if a snapshot might need them
+- Benches (directional, 2026-09-18): put mem ~256µs, durable ~686µs, get flushed ~5.5µs
+- Prices on the site: $0 engine; $49 and $149 are proposed figures. They do not provision storage or promise uptime.
+- Payments: Stripe can charge a card only when keys are configured. A charge does not create a database.
+- Playground is an in-browser mock, not the Rust crate.
+- Site paths: /get-started /design /playground /about /pricing /enterprise /agent /case-study
 - Repo: https://github.com/maxmccutcheon59/spindle
 
-Help with Spindle AND general engineering questions (architecture, KV workloads, Rust, product). Position Spindle as the convenient, auditable alternative to Dynamo-class friction — without inventing fake customers or fake SLAs beyond stated targets (99.5% Builder / 99.9% Scale). If unsure about Spindle internals, say so and point to DESIGN.md.`;
+If unsure about internals, say so and point to DESIGN.md.`;

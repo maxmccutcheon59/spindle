@@ -1,5 +1,12 @@
 # Spindle design notes
 
+Interview deep-dive for the engine in [README.md](README.md).
+See put, get, delete, flush, and scan first:
+
+```bash
+cargo run --example quickstart
+```
+
 Living document. Updated as milestones land. The interview value of this
 repo is being able to defend every choice below without looking it up.
 
@@ -39,8 +46,9 @@ flush so a deleted key resurrects from an older SSTable.
 flag on the write options controls `fdatasync`. RocksDB adds group commit
 and pipelined writes.
 
-**Spindle:** `SyncPolicy::EveryWrite` (default) and `GroupCommit { ms }`.
-`put` returns `Ok` only after the policy's sync has completed.
+**Spindle:** `SyncPolicy::EveryWrite` (default) and
+`SyncPolicy::GroupCommit { group_commit_ms }`. `put` returns `Ok` only
+after the policy's sync has completed.
 
 ### The interview question
 
@@ -91,7 +99,12 @@ bugs.
 Background thread (`spindle-compact`) picks work when:
 
 - L0 file count ≥ 4, or
-- Level L bytes > `level_base_bytes * 10^(L-1)` (defaults: 10 MiB base, ×10).
+- Level L (L ≥ 1) bytes > `level_base_bytes * 10^(L-1)` (defaults: 10 MiB base, ×10).
+
+There are seven levels, `0..=6` (`NUM_LEVELS` in `src/version.rs`). L0 is
+file-count only. Levels 1 through 5 use the byte target above
+(`multiplier.pow(level - 1)`). Level 6 is the bottom: nothing compacts out
+of it, and tombstones are dropped only when the compaction output level is 6.
 
 **Why ×10:** LevelDB's default. Write amp ≈ 10 per level; read amp and
 file count stay bounded. RocksDB keeps the same for classic leveled mode.

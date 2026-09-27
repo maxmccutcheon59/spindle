@@ -9,8 +9,8 @@ import {
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Pricing — flat plans, pay by card or bank",
-  description: `Spindle Cloud pricing — open source free, Builder ${plans[1].price}/mo, Scale ${plans[2].price}/mo. Pay by card or US bank via Stripe. No DynamoDB capacity meters.`,
+  title: "Pricing notes — engine is free",
+  description: `The Spindle engine is free (MIT). Builder ${plans[1].price} and Scale ${plans[2].price} are proposed early-access figures. They do not provision storage.`,
   alternates: { canonical: "/pricing/" },
 };
 
@@ -23,13 +23,13 @@ export default function PricingPage() {
           Pricing
         </p>
         <h1 className="mt-3 max-w-2xl font-[family-name:var(--font-display)] text-4xl font-extrabold tracking-tight text-ink md:text-5xl">
-          Flat bills. Card or bank. No RCU theater.
+          The engine is free. The other prices are notes.
         </h1>
         <p className="mt-5 max-w-2xl text-lg text-muted-foreground">
-          {site.product} subscriptions settle through{" "}
-          <strong className="font-semibold text-ink/90">Stripe</strong> — credit
-          cards worldwide, US bank (ACH) when enabled. Money goes to founder{" "}
-          {site.author.name}. Compare that to decoding Dynamo capacity invoices.
+          Clone the MIT crate. Builder and Scale are proposed early-access
+          figures from {site.author.name}. If Stripe keys are configured, a
+          card can be charged. That does not provision storage, and there is
+          no uptime target attached to either number.
         </p>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -43,22 +43,22 @@ export default function PricingPage() {
 
         <div className="mt-10 border-l-2 border-sand bg-card/70 px-4 py-3 text-sm leading-relaxed text-ink/90">
           <strong className="text-teal-deep">Checkout: </strong>
-          Pay on Stripe Checkout (card / bank) or a Payment Link. See{" "}
+          Stripe Checkout or a Payment Link, only when keys are set. See{" "}
           <Link
             href="/enterprise/"
             className="font-medium text-teal-deep underline-offset-2 hover:underline"
           >
-            why enterprises switch
+            Cloud notes
           </Link>{" "}
           and the{" "}
           <Link
             href="/case-study/"
             className="font-medium text-teal-deep underline-offset-2 hover:underline"
           >
-            honest case study
+            status page
           </Link>
-          . Early-access pricing funds the hosted layer; the Rust engine already
-          passes <code className="font-mono text-xs">cargo test</code>.
+          . The Rust engine is what{" "}
+          <code className="font-mono text-xs">cargo test</code> covers.
         </div>
 
         <div className="mt-12 grid gap-6 lg:grid-cols-3">
@@ -74,11 +74,11 @@ export default function PricingPage() {
             >
               {plan.highlighted ? (
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-teal-deep">
-                  Most chosen
+                  Ships today
                 </p>
               ) : (
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                  {plan.id === "free" ? "Self-host" : "Production"}
+                  Not provisioned
                 </p>
               )}
               <h2 className="mt-2 font-[family-name:var(--font-display)] text-2xl font-bold text-ink">

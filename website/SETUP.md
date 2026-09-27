@@ -2,7 +2,7 @@
 
 Public site today: https://maxmccutcheon59.github.io/spindle/
 
-**Goal:** real customers enter a **credit card or US bank account**, Stripe charges them, and **you (Max) receive the money** in Stripe → your bank.
+**Goal:** if you enable live Stripe, a person can enter a **credit card or US bank account**, Stripe charges them, and **you (Max) receive the money** in Stripe → your bank. That charge does not provision a database. There is no customer base today.
 
 ---
 

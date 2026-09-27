@@ -1,6 +1,6 @@
 # Spindle Website (Spindle Cloud)
 
-By **Max McCutcheon** — SaaS marketing, Stripe checkout (card / bank), playground, and **Spindle Agent**.
+By **Max McCutcheon** — static site for the MIT Rust LSM, plus experimental Cloud / Stripe / Agent pages. The engine is the product that ships. Cloud checkout does not provision a database.
 
 ## Develop
 
@@ -16,7 +16,7 @@ npm run dev
 
 ## Get paid (Stripe)
 
-Real customers pay by **credit card** or **US bank (ACH)**. Money → your Stripe balance → payouts to **your bank**.
+If Stripe keys are set, a **credit card** or **US bank (ACH)** charge can settle to the Stripe account. There is no customer base, and a charge does not provision storage.
 
 Full steps: **[SETUP.md](./SETUP.md)**
 

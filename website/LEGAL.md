@@ -20,7 +20,7 @@ Spindle Agent (engine remains MIT).
 
 | Path | Verdict |
 |------|---------|
-| **Storage / infra SaaS** (KV + Cloud + Agent that knows your store) | **Yes — this is Spindle.** Defendable, ships today. |
+| **Storage / infra SaaS** (KV + Cloud + Agent) | **Not yet.** The MIT engine ships. Cloud and Agent pages are an early-access website experiment, not a hosted product. |
 | Multi-product SaaS layers on the same data plane | Later, after Cloud has real tenants |
 | Agentic AI / LLM *on top of Spindle* | Natural expansion (Agent already exists) — not a new company name |
 | Own “certain infrastructure” (storage, regions, ops) | Same company — that’s Cloud maturing |
@@ -32,7 +32,7 @@ don’t invent five industries on the homepage.
 
 ## Suggested sequence
 
-1. Keep shipping Spindle Cloud; take payments via Stripe (see SETUP.md).
+1. Keep shipping the MIT engine. Cloud pages stay an experiment; only enable live Stripe if a charge is described as not provisioning storage (see SETUP.md).
 2. Form **Spindle LLC** (or similar) in your state — file articles, EIN, business bank.
 3. Update Stripe + site footer: “Spindle LLC · founded by Max McCutcheon”.
 4. Sign a short **IP assignment**: Max → LLC (engine license stays MIT; Cloud/Agent/trademarks assign).

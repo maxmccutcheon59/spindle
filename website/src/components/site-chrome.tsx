@@ -3,11 +3,11 @@ import { site } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 const links = [
-  { href: "/enterprise/", label: "Enterprise" },
-  { href: "/agent/", label: "Agent" },
+  { href: "/get-started/", label: "Demo" },
   { href: "/playground/", label: "Playground" },
+  { href: "/enterprise/", label: "Cloud notes" },
   { href: "/pricing/", label: "Pricing" },
-  { href: "/case-study/", label: "Case study" },
+  { href: "/case-study/", label: "Status" },
   { href: "/about/", label: "About" },
 ] as const;
 
@@ -59,12 +59,12 @@ export function SiteHeader() {
             {link.label}
           </Link>
         ))}
-        <Link
-          href="/subscribe/builder/"
+        <a
+          href={site.github}
           className="rounded-md bg-teal px-3.5 py-2 text-sm font-semibold text-primary-foreground transition-transform hover:-translate-y-0.5 hover:bg-teal-deep"
         >
-          Start · $49/mo
-        </Link>
+          GitHub
+        </a>
       </nav>
       <Link
         href="/pricing/"
@@ -107,12 +107,12 @@ export function SiteFooter() {
           <ul className="mt-3 space-y-2 text-sm">
             <li>
               <Link className="hover:text-white" href="/enterprise/">
-                Enterprise
+                Cloud notes
               </Link>
             </li>
             <li>
               <Link className="hover:text-white" href="/case-study/">
-                Case study
+                Status
               </Link>
             </li>
             <li>
@@ -131,13 +131,13 @@ export function SiteFooter() {
               </Link>
             </li>
             <li>
-              <Link className="hover:text-white" href="/subscribe/builder/">
-                Start Builder
+              <Link className="hover:text-white" href="/get-started/">
+                Five-minute demo
               </Link>
             </li>
             <li>
-              <Link className="hover:text-white" href="/get-started/">
-                Docs
+              <Link className="hover:text-white" href="/design/">
+                Design notes
               </Link>
             </li>
           </ul>

@@ -83,9 +83,12 @@ const jsonLd = [
       jobTitle: site.author.role,
     },
     offers: [
-      { "@type": "Offer", name: "Open Source", price: "0", priceCurrency: "USD" },
-      { "@type": "Offer", name: "Builder", price: "49", priceCurrency: "USD" },
-      { "@type": "Offer", name: "Scale", price: "149", priceCurrency: "USD" },
+      {
+        "@type": "Offer",
+        name: "MIT engine",
+        price: "0",
+        priceCurrency: "USD",
+      },
     ],
   },
   {

@@ -97,10 +97,10 @@ export function SubscribeClient({ planId }: { planId: PlanId }) {
     // 4) Production without Stripe yet — email the founder to complete payment.
     setMode("email");
     const subject = encodeURIComponent(
-      `Spindle Cloud ${selected.name} subscription`,
+      `Spindle early-access note (${selected.name})`,
     );
     const body = encodeURIComponent(
-      `Hi Max,\n\nI'd like to subscribe to Spindle Cloud ${selected.name} (${selected.price}${selected.period}).\n\nWork email: ${email}\n\nPlease send a Stripe payment link or invoice.\n`,
+      `Hi Max,\n\nI'm writing about the early-access ${selected.name} price (${selected.price}${selected.period}).\n\nEmail: ${email}\n\nI understand this does not provision a database.\n`,
     );
     window.location.href = `mailto:${site.author.email}?subject=${subject}&body=${body}`;
     setBusy(false);
@@ -133,13 +133,13 @@ export function SubscribeClient({ planId }: { planId: PlanId }) {
 
       <form onSubmit={onSubmit} className="mt-8 space-y-4">
         <label className="block text-sm font-medium text-ink">
-          Work email
+          Email
           <input
             type="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@company.com"
+            placeholder="you@example.com"
             className="mt-1.5 w-full rounded-md border border-border bg-card px-3 py-2.5 text-base text-ink outline-none ring-teal focus:ring-2"
             autoComplete="email"
           />
@@ -168,23 +168,21 @@ export function SubscribeClient({ planId }: { planId: PlanId }) {
 
       <div className="mt-4 space-y-2 text-xs leading-relaxed text-muted-foreground">
         <p>
-          Available to every customer worldwide. Secure checkout is hosted by{" "}
-          <strong className="text-ink/80">Stripe</strong> — cards globally; US
-          bank (ACH) when enabled. Money settles to {site.author.name}&apos;s
-          Stripe account, then payouts to his bank.
+          Early-access checkout only. When Stripe is configured, the button
+          opens Stripe (card, or US bank when that method is enabled). A
+          charge settles to {site.author.name}&apos;s Stripe account. It does
+          not provision storage, an endpoint, or an uptime target.
         </p>
         {!liveLink && !allowDemoCheckout() ? (
           <p className="border-l-2 border-sand pl-3 text-ink/80">
-            Live Stripe Payment Links are being connected. Until then, the
-            button emails{" "}
+            Stripe is not configured on this host. The button emails{" "}
             <a
               className="font-medium text-teal-deep underline-offset-2 hover:underline"
               href={`mailto:${site.author.email}`}
             >
               {site.author.email}
-            </a>{" "}
-            so you can still subscribe — Max will send a payment link or
-            invoice.
+            </a>
+            . There is still no hosted database behind either price.
           </p>
         ) : null}
         {!liveLink && allowDemoCheckout() ? (

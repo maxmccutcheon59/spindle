@@ -9,7 +9,7 @@ import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Playground",
-  description: `Interactive demo of ${site.author.name}'s Spindle put/get/delete/flush API — try the memtable and WAL log in your browser.`,
+  description: `In-browser mock of put/get/delete/flush. Not the Rust engine — run cargo run --example quickstart for that.`,
   alternates: { canonical: "/playground/" },
 };
 

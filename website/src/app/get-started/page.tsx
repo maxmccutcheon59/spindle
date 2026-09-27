@@ -9,7 +9,7 @@ import {
 export const metadata: Metadata = {
   title: "Get started",
   description:
-    "Build and run Spindle: cargo test, clippy, microbenchmarks, and a minimal put/get/delete example in Rust.",
+    "Clone Spindle and run cargo run --example quickstart: put, get, delete, flush, and scan on the Rust LSM.",
   alternates: { canonical: "/get-started/" },
 };
 
@@ -25,15 +25,10 @@ export default function GetStartedPage() {
           Clone, test, put a key.
         </h1>
         <p className="mt-5 text-lg leading-relaxed text-muted-foreground">
-          Spindle is a Rust crate. Rust 1.85+, then the usual cargo loop. Prefer
-          managed Cloud?{" "}
-          <a
-            href="/subscribe/builder/"
-            className="font-medium text-teal-deep underline-offset-2 hover:underline"
-          >
-            Subscribe with Stripe
-          </a>{" "}
-          — available to every customer.
+          Spindle is a Rust crate. Rust 1.85+ (the repo pins 1.85.0). The
+          quickstart prints put, get, delete, flush, scan, and a reopen.
+          Cloud pages are a separate early-access experiment and are not
+          required to use the engine.
         </p>
 
         <ol className="mt-10 space-y-8">
@@ -48,7 +43,15 @@ cd spindle`}</code>
           </li>
           <li>
             <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-ink">
-              2. Test & lint
+              2. Run the demo
+            </h2>
+            <pre className="mt-3 overflow-x-auto rounded-md bg-ink p-4 font-mono text-sm text-mist">
+              <code>{`cargo run --example quickstart`}</code>
+            </pre>
+          </li>
+          <li>
+            <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-ink">
+              3. Test & lint
             </h2>
             <pre className="mt-3 overflow-x-auto rounded-md bg-ink p-4 font-mono text-sm text-mist">
               <code>{`cargo test
@@ -58,15 +61,19 @@ cargo bench --bench basic`}</code>
           </li>
           <li>
             <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-ink">
-              3. Minimal API
+              4. Minimal API
             </h2>
             <pre className="mt-3 overflow-x-auto rounded-md bg-ink p-4 font-mono text-sm text-mist">
               <code>{`use spindle::{Db, Options};
 
 let db = Db::open(Options::new("./spindle-data"))?;
 db.put(b"hello", b"world")?;
-assert_eq!(db.get(b"hello")?, Some(b"world".to_vec()));
-db.delete(b"hello")?;`}</code>
+assert_eq!(db.get(b"hello")?.as_deref(), Some(b"world".as_slice()));
+db.delete(b"hello")?;
+db.flush()?;
+for kv in db.scan(None, None)? {
+    let _ = (kv.key, kv.value);
+}`}</code>
             </pre>
           </li>
         </ol>
