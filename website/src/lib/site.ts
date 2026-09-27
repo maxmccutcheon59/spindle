@@ -1,9 +1,9 @@
 export const site = {
   name: "Spindle",
   product: "Spindle Cloud",
-  tagline: "The convenient KV cloud companies can actually own",
+  tagline: "An open Rust LSM you can audit — Cloud is the roadmap",
   description:
-    "Spindle is Max McCutcheon’s LSM-tree key-value engine and Spindle Cloud — flat-priced, open-source-underneath durable storage for businesses that refuse DynamoDB’s capacity theater, lock-in, and black-box ops.",
+    "Spindle is Max McCutcheon’s MIT-licensed Rust LSM-tree key-value engine (WAL, SSTables, leveled compaction, MVCC). Spindle Cloud is a founding hypothesis for managed flat-priced hosting — not a live multi-tenant SaaS yet.",
   url:
     process.env.NEXT_PUBLIC_SITE_URL ??
     "https://maxmccutcheon59.github.io/spindle",
@@ -14,23 +14,24 @@ export const site = {
     name: "Max McCutcheon",
     handle: "maxmccutcheon59",
     role: "Founder",
-    email: "maxmccutcheon59@gmail.com",
+    /** Preferred public / venture CTA inbox */
+    email: "MaxMcCutcheon1@outlook.com",
+    /** Email used in ownership / legal notes today (do not silently drop) */
+    ownershipEmail: "maxmccutcheon59@gmail.com",
     github: "https://github.com/maxmccutcheon59",
-    bio: "Founder of Spindle. I build storage companies can defend — durable puts, readable engines, and Cloud convenience without hyperscaler lock-in.",
+    bio: "Founder of Spindle. I build readable storage engines — durable puts, crash tests, and an honest Cloud roadmap without hyperscaler lock-in theater.",
   },
   ownership:
-    "Spindle, Spindle Cloud, and Spindle Agent are founded and solely owned by Max McCutcheon (maxmccutcheon59@gmail.com). Until a formal company entity is registered, all rights, trademarks-in-use, Cloud product, website, branding, and Agent remain with the founder personally. The open-source engine is MIT-licensed; Cloud and Agent are proprietary company assets of the founder and may be assigned to a future LLC/Corp Max forms.",
+    "Spindle, Spindle Cloud, and Spindle Agent are founded and solely owned by Max McCutcheon (legal/ownership contact: maxmccutcheon59@gmail.com; venture CTAs: MaxMcCutcheon1@outlook.com). Until a formal company entity is registered, all rights, trademarks-in-use, Cloud product, website, branding, and Agent remain with the founder personally. The open-source engine is MIT-licensed; Cloud and Agent are proprietary assets of the founder and may be assigned to a future LLC/Corp Max forms. Spindle Cloud hosted durability is not a live billed product yet — pricing below is a founding hypothesis.",
   keywords: [
     "Spindle",
     "Spindle Cloud",
     "Max McCutcheon",
-    "DynamoDB alternative",
-    "DynamoDB competitor",
-    "managed key-value store",
-    "predictable database pricing",
-    "open source KV",
     "LSM tree Rust",
-    "enterprise key-value",
+    "open source KV",
+    "key-value store",
+    "WAL SSTable",
+    "DynamoDB alternative",
   ],
 } as const;
 
@@ -43,7 +44,7 @@ export const plans = [
     price: "$0",
     period: "forever",
     blurb:
-      "Run Spindle in your VPC or on bare metal. Full MIT source. Zero AWS tax, zero lock-in insurance.",
+      "Run Spindle in your process, VPC, or on bare metal. Full MIT source. Real today — cargo test, DESIGN.md, kill -9 harness.",
     features: [
       "MIT-licensed Rust LSM engine",
       "WAL, SSTables, leveled compaction",
@@ -53,7 +54,7 @@ export const plans = [
     cta: "View on GitHub",
     href: "https://github.com/maxmccutcheon59/spindle",
     external: true,
-    highlighted: false,
+    highlighted: true,
   },
   {
     id: "builder" as const,
@@ -61,18 +62,18 @@ export const plans = [
     price: "$49",
     period: "/ month",
     blurb:
-      "One flat bill. No RCU/WCU spreadsheets. Ship staging KV in an afternoon — the convenience Dynamo never gave finance.",
+      "Founding price hypothesis for a future managed Cloud tier — not a live hosted endpoint today. Email Max to discuss early access.",
     features: [
-      "25 GB durable storage",
-      "Daily snapshots",
-      "Single-region Cloud endpoint",
-      "Founder-reachable support · 99.5% target",
-      "Cancel anytime — no reserved capacity",
+      "Target: ~25 GB durable storage (when hosted)",
+      "Target: daily snapshots (roadmap)",
+      "Target: single-region Cloud endpoint (roadmap)",
+      "Founder-reachable email support",
+      "No live SLA — none claimed until hosted",
     ],
-    cta: "Start Builder",
+    cta: "Email about Builder",
     href: "/subscribe/builder/",
     external: false,
-    highlighted: true,
+    highlighted: false,
   },
   {
     id: "scale" as const,
@@ -80,15 +81,15 @@ export const plans = [
     price: "$149",
     period: "/ month",
     blurb:
-      "Predictable production pricing for companies that outgrew toy KV and refuse invoice roulette.",
+      "Founding price hypothesis for production-shaped Cloud — features below are targets, not shipped product claims.",
     features: [
-      "250 GB durable storage",
-      "Point-in-time recovery (7 days)",
-      "Priority founder support · 99.9% target",
-      "Usage dashboards & audit log",
+      "Target: ~250 GB durable storage (when hosted)",
+      "Target: point-in-time recovery (roadmap)",
+      "Priority founder support (email)",
+      "Target: usage dashboards & audit log (roadmap)",
       "Same open engine under the hood",
     ],
-    cta: "Start Scale",
+    cta: "Email about Scale",
     href: "/subscribe/scale/",
     external: false,
     highlighted: false,
@@ -140,43 +141,43 @@ export const stack = [
   },
 ] as const;
 
-/** Why companies pick Spindle over Dynamo-class clouds */
+/** Why the engine + Cloud hypothesis matter — aspirational positioning, not traction claims */
 export const enterpriseWins = [
   {
-    title: "No capacity theater",
-    body: "DynamoDB forces RCUs, WCUs, on-demand mode, reserved capacity, and FinOps archaeology. Spindle Cloud is a flat monthly plan — put, get, scan. Finance forecasts one line. Engineering ships without a capacity committee.",
+    title: "No capacity theater (hypothesis)",
+    body: "DynamoDB forces RCUs, WCUs, on-demand mode, reserved capacity, and FinOps archaeology. Spindle Cloud’s founding bet is a flat monthly plan — put, get, scan — when hosted durability ships. Finance forecasts one line. Engineering ships without a capacity committee.",
   },
   {
-    title: "Convenience that still opens",
-    body: "Black-box stores fail opaquely — then your pager wakes a team that can’t read the code. Spindle’s engine is MIT on GitHub. Your staff (or ours) can walk the WAL path, the bloom, the compaction. Managed ease with an audit trail.",
+    title: "An engine you can open today",
+    body: "Black-box stores fail opaquely — then your pager wakes a team that can’t read the code. Spindle’s engine is MIT on GitHub now. You can walk the WAL path, the bloom, the compaction. Managed Cloud is the roadmap on top of that audit trail.",
   },
   {
     title: "Portability is the product",
-    body: "Hyperscaler KV traps you in proprietary APIs and region gravity. Embed Spindle’s crate, run on your metal, or subscribe to Cloud. Same mental model. Leave when you want — the engine comes with you.",
+    body: "Hyperscaler KV traps you in proprietary APIs and region gravity. Embed Spindle’s crate or run on your metal today. Cloud is optional later — same mental model. Leave when you want — the engine comes with you.",
   },
   {
     title: "Founder on the thread, not ticket roulette",
-    body: "Enterprise AWS support is a queue with severity codes. With Spindle you email maxmccutcheon59@gmail.com and talk to the person who wrote the fsync policy. Big companies pay for that clarity.",
+    body: "Enterprise AWS support is a queue with severity codes. With Spindle you email MaxMcCutcheon1@outlook.com and talk to the person who wrote the fsync policy. That clarity is the support model — not a claim that enterprises already rely on Spindle.",
   },
   {
-    title: "Onboarding in hours, not console tourism",
-    body: "No IAM maze, no capacity class bingo, no twelve Dynamo feature footnotes to explain a put. Endpoint + Agent + docs. New hires touch storage on day one.",
+    title: "Onboarding without console tourism",
+    body: "No IAM maze or capacity class bingo to try the engine: clone, cargo test, put/get. Cloud endpoints and Agent GPT mode need a hosted deploy — until then, docs + playground + email Max.",
   },
   {
-    title: "One mental model your org can defend",
-    body: "Keys, values, sequences, snapshots. Security and platform teams get DESIGN.md, crash tests, and source — not a PDF that says “trust the region.” That’s why enterprises rely on Spindle for KV that must stay explainable.",
+    title: "One mental model you can defend",
+    body: "Keys, values, sequences, snapshots. Security and platform teams get DESIGN.md, crash tests, and source — not a PDF that says “trust the region.” That’s the pitch for teams that need explainable KV — not a claim of existing enterprise customers.",
   },
 ] as const;
 
 export const vsCloud = [
   {
     them: "DynamoDB / peers",
-    us: "Spindle Cloud",
+    us: "Spindle (engine today · Cloud roadmap)",
     rows: [
       {
         label: "Pricing",
         them: "Usage meters, reserved capacity, surprise bills",
-        us: "Flat $49 / $149 — CFO-readable",
+        us: "OSS free today; Cloud $49 / $149 founding hypothesis",
       },
       {
         label: "Lock-in",
@@ -196,12 +197,12 @@ export const vsCloud = [
       {
         label: "Onboarding",
         them: "Console + IAM + capacity classes",
-        us: "Endpoint + Agent + one model",
+        us: "Clone + cargo test · Cloud endpoint later",
       },
       {
         label: "Procurement",
         them: "Commitments, reserved capacity, SKUs",
-        us: "Subscribe, cancel, no theater",
+        us: "Email Max for early access; Stripe when wired",
       },
     ],
   },
@@ -209,28 +210,28 @@ export const vsCloud = [
 
 export const saasPromises = [
   {
-    title: "Convenience without the cage",
-    body: "Managed durability and a simple API — without surrendering your stack to a proprietary store you can’t relocate when strategy changes.",
+    title: "Engine you can audit",
+    body: "WAL, SSTables, compaction, MVCC — implemented, tested, and documented. The serious part of Spindle ships as MIT source today.",
   },
   {
-    title: "Bills your CFO can read",
-    body: "Subscription lines beat decoding RU/WU graphs in a FinOps meeting. Scale when you need more bytes, not more jargon.",
+    title: "Bills finance could model (roadmap)",
+    body: "If/when Cloud hosts, founding plans aim at subscription lines instead of RU/WU graphs. Until then, self-host the engine at $0.",
   },
   {
-    title: "Engine enterprises can audit",
-    body: "Security and platform teams get source, crash tests, and a design doc — not a compliance PDF that says “trust us.”",
+    title: "Convenience without the cage (hypothesis)",
+    body: "Managed durability is the company product direction — not a claim that multi-tenant hosting, PITR, or dashboards are live. Embed or self-host now; email Max about Cloud early access.",
   },
 ] as const;
 
 /** Business reasons — short bullets for pricing / enterprise CTAs */
 export const businessReasons = [
   {
-    title: "Forecastable spend",
-    body: "Replace capacity planning meetings with a subscription your finance team can model.",
+    title: "Forecastable spend (hypothesis)",
+    body: "Cloud founding prices are meant to replace capacity planning meetings with a subscription finance can model — once hosted exists.",
   },
   {
     title: "Escape hatch built in",
-    body: "Open-source core means you’re never hostage to one vendor’s API or pricing flip.",
+    body: "Open-source core means you’re never hostage to one vendor’s API or pricing flip. True today.",
   },
   {
     title: "Faster incident clarity",
@@ -246,5 +247,5 @@ export const credentials = [
   { label: "Language", value: "Rust 1.85+" },
   { label: "License", value: "MIT © Max" },
   { label: "Founder", value: "Max McCutcheon" },
-  { label: "Email", value: "maxmccutcheon59@gmail.com" },
+  { label: "Email", value: "MaxMcCutcheon1@outlook.com" },
 ] as const;

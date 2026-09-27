@@ -1,6 +1,8 @@
-# Spindle Website (Spindle Cloud)
+# Spindle Website
 
-By **Max McCutcheon** — SaaS marketing, Stripe checkout (card / bank), playground, and **Spindle Agent**.
+By **Max McCutcheon** — engine-first marketing, Cloud roadmap / founding pricing hypotheses, Stripe checkout scaffold, playground, and **Spindle Agent**.
+
+**Honesty:** the Rust LSM is live OSS. Spindle Cloud hosted durability is not a live billed multi-tenant product yet; GitHub Pages has no Checkout API.
 
 ## Develop
 

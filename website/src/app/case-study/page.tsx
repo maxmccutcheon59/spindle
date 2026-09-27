@@ -9,7 +9,7 @@ import { site } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Case study — what Spindle actually is",
   description:
-    "Honest case study: Spindle engine today, Spindle Cloud + Stripe payments, why companies pick it over Dynamo-class friction, and what is still on the roadmap.",
+    "Honest case study: Spindle engine is real today; Spindle Cloud hosted durability and live Stripe on GitHub Pages are not yet. Positioning vs Dynamo-class friction without fake traction.",
   alternates: { canonical: "/case-study/" },
 };
 
@@ -31,15 +31,16 @@ export default function CaseStudyPage() {
 
         <section className="mt-12 space-y-4">
           <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-ink">
-            Why businesses rely on Spindle instead of Dynamo alone
+            Why teams evaluate Spindle vs Dynamo alone
           </h2>
           <p className="leading-relaxed text-ink/90">
-            DynamoDB and peers win on raw hyperscale. Spindle wins on{" "}
-            <strong>convenience companies can defend</strong>: flat $49 / $149
-            bills (no RCU/WCU spreadsheets), an MIT engine you can open when
-            storage misbehaves, portability out of one cloud, and founder-reachable
-            support. Platform and finance both get a story that fits in one
-            meeting — see{" "}
+            DynamoDB and peers win on raw hyperscale. Spindle aims at{" "}
+            <strong>convenience teams can defend</strong>: an MIT engine you can
+            open when storage misbehaves, portability out of one cloud, and
+            founder-reachable support — plus a founding hypothesis of flat $49 /
+            $149 Cloud bills (no RCU/WCU spreadsheets){" "}
+            <em>when hosted durability ships</em>. That is positioning, not a
+            claim that businesses already rely on Spindle Cloud. See{" "}
             <a
               className="text-teal-deep underline-offset-2 hover:underline"
               href="/enterprise/"
@@ -66,27 +67,38 @@ export default function CaseStudyPage() {
               DESIGN.md
             </a>
             . WAL, memtable, SSTables, leveled compaction, blooms, scans, MVCC —
-            implemented and tested.
+            implemented and tested. Directional benches (mem put ~256µs, durable
+            put ~686µs, flushed get ~5.5µs) are documented there.
           </p>
           <p className="leading-relaxed text-ink/90">
-            <strong>Spindle Cloud hosting: early-access.</strong> The website,
-            pricing, Stripe checkout (card / bank), Agent, and playground are
-            live. Full multi-tenant provisioning at hyperscaler scale is the
-            roadmap — not something we pretend already matches every Dynamo
-            global-table footnote.
+            <strong>Spindle Cloud hosting: not live as a billed SaaS.</strong>{" "}
+            There is no public multi-tenant API endpoint, no hosted PITR /
+            dashboards / uptime SLA in production. The marketing site, Agent
+            (local brain on Pages; GPT needs a server + key), and playground are
+            public. Stripe Checkout API routes need a non-static host; Payment
+            Links are optional secrets — on GitHub Pages today, subscribe falls
+            back to emailing the founder. Full hosted provisioning is the
+            roadmap.
           </p>
         </section>
 
         <section className="mt-12 space-y-4">
           <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-ink">
-            How do customers pay — and who gets the money?
+            How would customers pay — and who gets the money?
           </h2>
           <p className="leading-relaxed text-ink/90">
-            Checkout runs on <strong>Stripe</strong>. Buyers pay with a credit
-            card or (when enabled) a US bank account via ACH. Funds land in{" "}
-            {site.author.name}&apos;s Stripe account and payout to his linked
-            bank on Stripe&apos;s schedule. No fake gateways — configure keys
-            once in SETUP.md and live charges work.
+            Checkout is designed for <strong>Stripe</strong> (card; US bank/ACH
+            when enabled). Until Payment Links or a Vercel-style API host are
+            wired with live keys, public visitors email{" "}
+            <a
+              className="text-teal-deep underline-offset-2 hover:underline"
+              href={`mailto:${site.author.email}`}
+            >
+              {site.author.email}
+            </a>
+            . When charging starts, funds land in {site.author.name}&apos;s
+            Stripe and payout to his bank. Configure keys per SETUP.md — never
+            fake-charge customers.
           </p>
         </section>
 
@@ -95,11 +107,12 @@ export default function CaseStudyPage() {
             Is the pricing competitive?
           </h2>
           <p className="leading-relaxed text-ink/90">
-            <strong>$49 / $149</strong> is founder early-access pricing —
-            forecastable SaaS lines, not a claim that Spindle already undercuts
-            every Dynamo workload. Big clouds win on ecosystem. Spindle wins on
-            readability, portability, and bills finance can model without a FinOps
-            war room.
+            <strong>$49 / $149</strong> is founder early-access{" "}
+            <em>hypothesis</em> pricing for a future Cloud — forecastable SaaS
+            lines, not a claim that Spindle already undercuts every Dynamo
+            workload or that those features exist hosted today. Big clouds win
+            on ecosystem. Spindle wins on readability, portability, and bills
+            finance could model without a FinOps war room.
           </p>
         </section>
 
@@ -117,9 +130,15 @@ export default function CaseStudyPage() {
         </section>
 
         <div className="mt-12 flex flex-wrap gap-3">
-          <CtaLink href="/subscribe/builder/">Pay with Stripe · Builder</CtaLink>
-          <CtaLink href="/enterprise/" variant="ghost">
-            Enterprise brief
+          <CtaLink href={site.github} external>
+            Open the engine
+          </CtaLink>
+          <CtaLink
+            href={`mailto:${site.author.email}?subject=Spindle%20Cloud%20early%20access`}
+            external
+            variant="ghost"
+          >
+            Email Max about Cloud
           </CtaLink>
         </div>
       </main>
