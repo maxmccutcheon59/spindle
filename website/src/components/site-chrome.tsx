@@ -59,12 +59,12 @@ export function SiteHeader() {
             {link.label}
           </Link>
         ))}
-        <Link
-          href="/subscribe/builder/"
+        <a
+          href={`mailto:${site.author.email}?subject=Spindle%20Cloud%20early%20access`}
           className="rounded-md bg-teal px-3.5 py-2 text-sm font-semibold text-primary-foreground transition-transform hover:-translate-y-0.5 hover:bg-teal-deep"
         >
-          Start · $49/mo
-        </Link>
+          Email Max
+        </a>
       </nav>
       <Link
         href="/pricing/"
@@ -132,7 +132,7 @@ export function SiteFooter() {
             </li>
             <li>
               <Link className="hover:text-white" href="/subscribe/builder/">
-                Start Builder
+                Cloud early access
               </Link>
             </li>
             <li>

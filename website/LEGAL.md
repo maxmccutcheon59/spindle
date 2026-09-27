@@ -51,3 +51,14 @@ don’t invent five industries on the homepage.
 Until an LLC exists, invoices and Stripe payouts are under your name/email
 (`maxmccutcheon59@gmail.com`). After formation, re-issue Stripe under the LLC
 and update the site ownership line.
+
+## Cloud status (marketing)
+
+Spindle Cloud hosted durability is **not** a live billed multi-tenant product yet.
+Public GitHub Pages is static. Stripe Payment Links / Checkout API must be
+explicitly wired before claiming live card checkout. Do not publish SLA, PITR,
+dashboard, or storage-quota claims as shipped until they exist. Pricing tiers
+are founding hypotheses. Prefer CTA email **MaxMcCutcheon1@outlook.com**; keep
+**maxmccutcheon59@gmail.com** in ownership notes until Max consolidates after
+LLC formation.
+

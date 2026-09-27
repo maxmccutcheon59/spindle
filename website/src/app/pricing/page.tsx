@@ -9,8 +9,8 @@ import {
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Pricing — flat plans, pay by card or bank",
-  description: `Spindle Cloud pricing — open source free, Builder ${plans[1].price}/mo, Scale ${plans[2].price}/mo. Pay by card or US bank via Stripe. No DynamoDB capacity meters.`,
+  title: "Pricing — OSS free · Cloud founding hypotheses",
+  description: `Spindle pricing: open source free today. Builder ${plans[1].price}/mo and Scale ${plans[2].price}/mo are founding Cloud hypotheses — not live hosted features. Email ${site.author.email} for early access.`,
   alternates: { canonical: "/pricing/" },
 };
 
@@ -23,13 +23,16 @@ export default function PricingPage() {
           Pricing
         </p>
         <h1 className="mt-3 max-w-2xl font-[family-name:var(--font-display)] text-4xl font-extrabold tracking-tight text-ink md:text-5xl">
-          Flat bills. Card or bank. No RCU theater.
+          Engine free. Cloud prices are founding hypotheses.
         </h1>
         <p className="mt-5 max-w-2xl text-lg text-muted-foreground">
-          {site.product} subscriptions settle through{" "}
-          <strong className="font-semibold text-ink/90">Stripe</strong> — credit
-          cards worldwide, US bank (ACH) when enabled. Money goes to founder{" "}
-          {site.author.name}. Compare that to decoding Dynamo capacity invoices.
+          The Rust LSM is MIT and real today. {site.product} hosted durability
+          (storage quotas, PITR, dashboards, uptime targets) is{" "}
+          <strong className="font-semibold text-ink/90">not a live billed
+          product yet</strong>
+          . Stripe Checkout / Payment Links are scaffolded for when Max wires
+          them; until then, email the founder. Money — when charging starts —
+          goes to {site.author.name}.
         </p>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -42,23 +45,24 @@ export default function PricingPage() {
         </div>
 
         <div className="mt-10 border-l-2 border-sand bg-card/70 px-4 py-3 text-sm leading-relaxed text-ink/90">
-          <strong className="text-teal-deep">Checkout: </strong>
-          Pay on Stripe Checkout (card / bank) or a Payment Link. See{" "}
-          <Link
-            href="/enterprise/"
-            className="font-medium text-teal-deep underline-offset-2 hover:underline"
-          >
-            why enterprises switch
-          </Link>{" "}
-          and the{" "}
+          <strong className="text-teal-deep">Honesty: </strong>
+          No fake SLA, no claim that 250&nbsp;GB / PITR / audit logs exist as a
+          hosted service today. See the{" "}
           <Link
             href="/case-study/"
             className="font-medium text-teal-deep underline-offset-2 hover:underline"
           >
             honest case study
+          </Link>{" "}
+          and{" "}
+          <Link
+            href="/enterprise/"
+            className="font-medium text-teal-deep underline-offset-2 hover:underline"
+          >
+            positioning brief
           </Link>
-          . Early-access pricing funds the hosted layer; the Rust engine already
-          passes <code className="font-mono text-xs">cargo test</code>.
+          . The engine already passes{" "}
+          <code className="font-mono text-xs">cargo test</code>.
         </div>
 
         <div className="mt-12 grid gap-6 lg:grid-cols-3">
@@ -72,15 +76,17 @@ export default function PricingPage() {
                   : "border-border/80 bg-card/50",
               )}
             >
-              {plan.highlighted ? (
-                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-teal-deep">
-                  Most chosen
-                </p>
-              ) : (
-                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                  {plan.id === "free" ? "Self-host" : "Production"}
-                </p>
-              )}
+              <p
+                className={
+                  plan.highlighted
+                    ? "text-[11px] font-semibold uppercase tracking-[0.16em] text-teal-deep"
+                    : "text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground"
+                }
+              >
+                {plan.id === "free"
+                  ? "Available now"
+                  : "Cloud · roadmap"}
+              </p>
               <h2 className="mt-2 font-[family-name:var(--font-display)] text-2xl font-bold text-ink">
                 {plan.name}
               </h2>
@@ -128,7 +134,7 @@ export default function PricingPage() {
         </div>
 
         <p className="mt-10 text-center text-sm text-muted-foreground">
-          Questions before you pay? Email{" "}
+          Questions? Email{" "}
           <a
             href={`mailto:${site.author.email}`}
             className="font-medium text-teal-deep underline-offset-2 hover:underline"

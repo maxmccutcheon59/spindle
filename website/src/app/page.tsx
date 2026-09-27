@@ -31,19 +31,24 @@ export default function HomePage() {
               Founded by {site.author.name}
             </p>
             <h1 className="animate-rise-delay-1 mt-5 max-w-xl text-2xl font-semibold leading-snug text-ink/90 md:text-3xl">
-              The KV cloud built for convenience — without DynamoDB lock-in.
+              An open Rust LSM you can audit — without DynamoDB lock-in.
             </h1>
             <p className="animate-rise-delay-2 mt-5 max-w-lg text-base leading-relaxed text-muted-foreground md:text-lg">
-              Flat pricing. An API your team already understands. An engine you
-              can open when storage misbehaves. {site.product} is what companies
-              use when hyperscaler KV is powerful — and exhausting.
+              Durable puts. Readable write path. Crash tests that survive{" "}
+              <code className="font-mono text-sm">kill -9</code>. The engine is
+              real and MIT on GitHub. {site.product} — managed flat-priced
+              hosting — is the founding roadmap, not a live multi-tenant product
+              yet.
             </p>
             <div className="animate-rise-delay-3 mt-8 flex flex-wrap gap-3">
-              <CtaLink href="/subscribe/builder/">
-                Pay with Stripe · $49
+              <CtaLink href={site.github} external>
+                Open the engine
               </CtaLink>
-              <CtaLink href="/enterprise/" variant="ghost">
-                Why enterprises switch
+              <CtaLink href="/get-started/" variant="ghost">
+                Get started
+              </CtaLink>
+              <CtaLink href="/case-study/" variant="ghost">
+                Honest brief
               </CtaLink>
             </div>
           </div>
@@ -78,11 +83,15 @@ export default function HomePage() {
         <section className="border-b border-border/80 bg-card/60 backdrop-blur-sm">
           <div className="mx-auto max-w-6xl px-5 py-16 md:px-8 md:py-20">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-deep">
-              Why companies rely on Spindle
+              Why teams look at Spindle
             </p>
             <h2 className="mt-3 max-w-2xl font-[family-name:var(--font-display)] text-3xl font-bold tracking-tight text-ink md:text-4xl">
               More convenient than a black box. More controllable than a cage.
             </h2>
+            <p className="mt-4 max-w-2xl text-sm text-muted-foreground">
+              Positioning vs hyperscaler KV friction — not a claim that
+              enterprises already rely on Spindle Cloud.
+            </p>
             <div className="mt-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
               {enterpriseWins.map((item) => (
                 <article key={item.title}>
@@ -103,12 +112,13 @@ export default function HomePage() {
             vs hyperscaler KV
           </p>
           <h2 className="mt-3 font-[family-name:var(--font-display)] text-3xl font-bold tracking-tight text-ink md:text-4xl">
-            Dynamo-class power. Spindle-class ease.
+            Dynamo-class power. Spindle-class clarity.
           </h2>
           <p className="mt-4 max-w-2xl text-muted-foreground">
-            Big clouds win on endless feature lists. Spindle wins where
-            businesses actually feel pain: billing clarity, portability, and a
-            support path that reaches a human who built the fsync policy.
+            Big clouds win on endless feature lists. Spindle aims where teams
+            feel pain: billing clarity, portability, and a support path that
+            reaches a human who built the fsync policy. Engine columns below are
+            true today; Cloud columns are the founding hypothesis.
           </p>
 
           <div className="mt-10 overflow-x-auto">
@@ -146,10 +156,10 @@ export default function HomePage() {
         <section className="border-y border-border/80 bg-card/60 backdrop-blur-sm">
           <div className="mx-auto max-w-6xl px-5 py-16 md:px-8 md:py-20">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-deep">
-              Product promises
+              What is real vs roadmap
             </p>
             <h2 className="mt-3 max-w-2xl font-[family-name:var(--font-display)] text-3xl font-bold tracking-tight text-ink md:text-4xl">
-              Built for teams that ship, not for console tourism.
+              Built for teams that ship — and for founders who refuse fake SaaS.
             </h2>
             <div className="mt-12 grid gap-10 md:grid-cols-3">
               {saasPromises.map((item) => (
@@ -177,8 +187,9 @@ export default function HomePage() {
             One write path. One read path. No mystery boxes.
           </h2>
           <p className="mt-4 max-w-2xl text-muted-foreground">
-            Cloud sits on the same LevelDB-shaped core the company publishes —
-            small enough to audit, serious enough to sell.
+            The same LevelDB-shaped core the company publishes — small enough to
+            audit, serious enough to build on. Cloud, when it ships, sits on this
+            path.
           </p>
           <div className="mt-12 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
             {stack.map((item) => (
@@ -205,6 +216,10 @@ export default function HomePage() {
             <h2 className="mt-3 font-[family-name:var(--font-display)] text-3xl font-bold tracking-tight text-ink md:text-4xl">
               Directional numbers from the open engine.
             </h2>
+            <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
+              From Criterion runs documented in DESIGN.md — not Cloud SLA
+              numbers.
+            </p>
             <div className="mt-10 grid gap-6 md:grid-cols-3">
               {benches.map((bench) => (
                 <div key={bench.name} className="border-l-2 border-teal pl-5">
@@ -225,26 +240,28 @@ export default function HomePage() {
           <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-8 px-5 py-16 md:flex-row md:items-center md:px-8 md:py-20">
             <div>
               <h2 className="font-[family-name:var(--font-display)] text-3xl font-bold tracking-tight md:text-4xl">
-                Give your company a KV path it can own.
+                Give your stack a KV path it can own.
               </h2>
               <p className="mt-3 max-w-xl text-mist/75">
-                Start on Spindle Cloud. Keep the MIT engine as insurance. Talk
-                to the founder when something matters.
+                Start with the MIT engine. Talk to the founder about Cloud early
+                access when something matters.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
               <CtaLink
-                href="/subscribe/builder/"
+                href={site.github}
+                external
                 className="bg-sand text-ink hover:bg-sand/90"
               >
-                Start Builder · $49
+                GitHub · spindle
               </CtaLink>
               <CtaLink
-                href="/enterprise/"
+                href={`mailto:${site.author.email}?subject=Spindle%20Cloud%20early%20access`}
+                external
                 variant="ghost"
                 className="text-mist ring-mist/30 hover:bg-white/5"
               >
-                Enterprise brief
+                Email Max
               </CtaLink>
             </div>
           </div>
