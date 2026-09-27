@@ -1,4 +1,5 @@
 /target
+/spindle-data/
 **/*.rs.bk
 .idea/
 .vscode/
