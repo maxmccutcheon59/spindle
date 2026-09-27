@@ -18,14 +18,12 @@ function SuccessBody() {
         {demo ? "Demo checkout complete" : "Payment received"}
       </p>
       <h1 className="mt-3 font-[family-name:var(--font-display)] text-4xl font-extrabold tracking-tight text-ink">
-        {demo
-          ? `Local ${plan} demo finished.`
-          : `Stripe recorded a ${plan} payment.`}
+        {plan} subscription started.
       </h1>
       <p className="mt-4 text-muted-foreground">
         {demo
-          ? "No card was charged. This demo does not create a database. The engine is the Rust crate — see Get started."
-          : `Stripe confirmed a payment${sessionId ? ` (${sessionId.slice(0, 12)}…)` : ""}. A receipt goes to your email. Funds settle to ${site.author.name}’s Stripe account. This does not provision storage, an endpoint, or an uptime target. Email him if you paid and want to talk.`}
+          ? "This was a local demo — no card was charged. Connect Stripe (SETUP.md) so real customers pay by card or bank and Max receives the money."
+          : `Stripe confirmed your payment${sessionId ? ` (${sessionId.slice(0, 12)}…)` : ""}. A receipt goes to your email. Funds settle to ${site.author.name}’s Stripe account, then payout to his bank.`}
       </p>
       <div className="mt-8 flex flex-wrap gap-3">
         <CtaLink href="/get-started/">Open get started</CtaLink>

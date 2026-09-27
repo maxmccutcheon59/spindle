@@ -66,8 +66,8 @@ const jsonLd = [
   {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    name: site.product,
-    alternateName: site.name,
+    name: site.name,
+    alternateName: site.product,
     applicationCategory: "DeveloperApplication",
     operatingSystem: "Linux, macOS, Windows",
     programmingLanguage: "Rust",
@@ -85,9 +85,10 @@ const jsonLd = [
     offers: [
       {
         "@type": "Offer",
-        name: "MIT engine",
+        name: "Open Source",
         price: "0",
         priceCurrency: "USD",
+        description: "MIT-licensed Rust LSM engine — available now",
       },
     ],
   },

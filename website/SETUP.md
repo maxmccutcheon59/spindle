@@ -2,7 +2,9 @@
 
 Public site today: https://maxmccutcheon59.github.io/spindle/
 
-**Goal:** if you enable live Stripe, a person can enter a **credit card or US bank account**, Stripe charges them, and **you (Max) receive the money** in Stripe → your bank. That charge does not provision a database. There is no customer base today.
+**Honesty gate:** Spindle Cloud hosted durability is **not** live as a multi-tenant SaaS yet. Do not market PITR, dashboards, storage quotas, or uptime targets as shipped until they exist. Stripe below enables *payment* when Max is ready — it does not provision Cloud tenants by itself. Prefer CTA email **MaxMcCutcheon1@outlook.com** (ownership notes may still mention maxmccutcheon59@gmail.com).
+
+**Goal:** real customers enter a **credit card or US bank account**, Stripe charges them, and **you (Max) receive the money** in Stripe → your bank.
 
 ---
 

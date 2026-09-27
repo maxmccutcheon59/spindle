@@ -5,11 +5,9 @@
 
 **An LSM-tree key-value engine in Rust**, by [Max McCutcheon](https://github.com/maxmccutcheon59).
 
-Embedded store: write-ahead log, memtable, block-based SSTables, leveled compaction, bloom filters, MVCC snapshots, and range scans. It is a local library you can build, crash, and read. Version **0.1.0**. Educational scope — see [`SECURITY.md`](SECURITY.md).
+Local library: write-ahead log, memtable, block-based SSTables, leveled compaction, bloom filters, MVCC snapshots, and range scans. Version **0.1.0**. MIT. Design notes: [`DESIGN.md`](DESIGN.md). Vulnerability reports: [`SECURITY.md`](SECURITY.md).
 
-**Email:** [maxmccutcheon59@gmail.com](mailto:maxmccutcheon59@gmail.com)
-
-Design choices, failure modes, and benchmark limits: [`DESIGN.md`](DESIGN.md).
+**Email:** [MaxMcCutcheon1@outlook.com](mailto:MaxMcCutcheon1@outlook.com)
 
 ## Demo (~5 minutes)
 
@@ -21,7 +19,7 @@ cd spindle
 cargo run --example quickstart
 ```
 
-That opens a temporary database and prints **put**, **get**, **delete**, **flush**, a **scan**, then a **reopen** that still sees the keys that survived. Source: [`examples/quickstart.rs`](examples/quickstart.rs).
+That prints **put**, **get**, **delete**, **flush**, a **scan**, and a **reopen**. Source: [`examples/quickstart.rs`](examples/quickstart.rs).
 
 ```rust
 use spindle::{Db, Options};
@@ -36,13 +34,14 @@ for kv in db.scan(None, None)? {
 }
 ```
 
+`./spindle-data/` is gitignored.
+
 ```bash
 cargo test
 cargo clippy --all-targets -- -D warnings
-cargo bench --bench basic   # optional; local Criterion run
 ```
 
-`./spindle-data/` is gitignored. The RocksDB comparison bench (`--features rocksdb-bench`) needs a C++ toolchain and is not part of CI.
+`cargo bench --bench basic` is optional and local. The RocksDB bench (`--features rocksdb-bench`) needs a C++ toolchain and is not in CI.
 
 ## What it implements
 
@@ -56,23 +55,12 @@ cargo bench --bench basic   # optional; local Criterion run
 | MVCC | Monotonic sequence numbers. `snapshot` / `get_snapshot` / `scan_snapshot` |
 | Tests | Persistence, flush, MVCC, `kill -9` replay ([`tests/crash_kill9.rs`](tests/crash_kill9.rs)), SSTable fuzz |
 
-Public API (`src/lib.rs`): `Db`, `open`, `Options`, `SyncPolicy`, `Snapshot`, `KvIter`, `Error`, `Result`. `Table` is also exported for the SSTable format.
+Public API (`src/lib.rs`): `Db`, `open`, `Options`, `SyncPolicy`, `Snapshot`, `KvIter`, `Error`, `Result`. `Table` is also exported.
 
-## Website / experimental Cloud notes
+## Optional: website
 
-Static site (GitHub Pages): [https://maxmccutcheon59.github.io/spindle/](https://maxmccutcheon59.github.io/spindle/)
-
-**Ships today:** this engine, its tests, `DESIGN.md`, and a static site (about, design notes, get-started, an in-browser playground sketch).
-
-**Experimental, not a product:** pages that mention **Spindle Cloud** ($49 / $149), **Stripe**, and **Spindle Agent**. Those are early-access founder notes. There is no multi-tenant data plane, no provisioned storage, no uptime target, and no customer base. A configured Stripe checkout can charge a card; it does not stand up a hosted database. The playground is a browser mock, not this crate.
-
-```bash
-cd website && cp .env.example .env.local && npm install && npm run dev
-# http://127.0.0.1:43123
-```
-
-Stripe and Pages notes live in [`website/SETUP.md`](website/SETUP.md). Do not treat the site as a hosted KV service.
+A static site is on [GitHub Pages](https://maxmccutcheon59.github.io/spindle/). Cloud and Stripe mentions there are an early-access sketch, not a hosted database. See [`website/README.md`](website/README.md).
 
 ## License
 
-MIT © Max McCutcheon. The engine is MIT. Cloud and Agent pages are experimental website copy, not a separate service.
+MIT © Max McCutcheon.

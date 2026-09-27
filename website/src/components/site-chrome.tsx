@@ -3,11 +3,11 @@ import { site } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 const links = [
-  { href: "/get-started/", label: "Demo" },
+  { href: "/enterprise/", label: "Enterprise" },
+  { href: "/agent/", label: "Agent" },
   { href: "/playground/", label: "Playground" },
-  { href: "/enterprise/", label: "Cloud notes" },
   { href: "/pricing/", label: "Pricing" },
-  { href: "/case-study/", label: "Status" },
+  { href: "/case-study/", label: "Case study" },
   { href: "/about/", label: "About" },
 ] as const;
 
@@ -60,10 +60,10 @@ export function SiteHeader() {
           </Link>
         ))}
         <a
-          href={site.github}
+          href={`mailto:${site.author.email}?subject=Spindle%20Cloud%20early%20access`}
           className="rounded-md bg-teal px-3.5 py-2 text-sm font-semibold text-primary-foreground transition-transform hover:-translate-y-0.5 hover:bg-teal-deep"
         >
-          GitHub
+          Email Max
         </a>
       </nav>
       <Link
@@ -107,12 +107,12 @@ export function SiteFooter() {
           <ul className="mt-3 space-y-2 text-sm">
             <li>
               <Link className="hover:text-white" href="/enterprise/">
-                Cloud notes
+                Enterprise
               </Link>
             </li>
             <li>
               <Link className="hover:text-white" href="/case-study/">
-                Status
+                Case study
               </Link>
             </li>
             <li>
@@ -131,13 +131,13 @@ export function SiteFooter() {
               </Link>
             </li>
             <li>
-              <Link className="hover:text-white" href="/get-started/">
-                Five-minute demo
+              <Link className="hover:text-white" href="/subscribe/builder/">
+                Cloud early access
               </Link>
             </li>
             <li>
-              <Link className="hover:text-white" href="/design/">
-                Design notes
+              <Link className="hover:text-white" href="/get-started/">
+                Docs
               </Link>
             </li>
           </ul>

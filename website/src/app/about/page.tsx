@@ -31,13 +31,19 @@ export default function AboutPage() {
           {site.author.bio}
         </p>
         <p className="mt-4 rounded-md border border-teal/40 bg-card/80 px-4 py-3 text-sm leading-relaxed text-ink">
-          <span className="font-semibold text-teal-deep">Contact & ownership: </span>
+          <span className="font-semibold text-teal-deep">Contact (preferred): </span>
           <a
             className="font-semibold text-teal-deep underline-offset-2 hover:underline"
             href={`mailto:${site.author.email}`}
           >
             {site.author.email}
           </a>
+          <span className="mt-2 block text-muted-foreground">
+            <span className="font-semibold text-ink/80">Ownership / legal note email: </span>
+            {site.author.ownershipEmail} — kept for continuity with prior
+            contracts and LEGAL.md until Max consolidates inboxes after LLC
+            formation.
+          </span>
           <span className="mt-2 block text-muted-foreground">{site.ownership}</span>
         </p>
         <div className="mt-10 space-y-6 border-l-2 border-teal pl-5">
@@ -50,10 +56,11 @@ export default function AboutPage() {
             receipt.
           </p>
           <p className="leading-relaxed text-ink/90">
-            Cloud, Stripe, and Agent pages are an early-access experiment I
-            keep next to the crate. They are not a hosted database, and the
-            $49 / $149 figures do not provision storage. The MIT engine is
-            the work I want read.
+            Spindle Cloud is the company product{" "}
+            <em>direction</em> on top of that engine — managed durability and
+            Stripe subscriptions when hosted ships. I&apos;m the founder. Source
+            stays MIT; Builder and Scale are founding price hypotheses for the
+            hosted layer, not live feature checklists.
           </p>
           <p className="leading-relaxed text-ink/90">
             <strong className="text-ink">Legal stance today:</strong> there is
@@ -81,7 +88,7 @@ export default function AboutPage() {
           </div>
           <div>
             <dt className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-              Email
+              Email (CTA)
             </dt>
             <dd className="mt-1">
               <a
@@ -120,9 +127,11 @@ export default function AboutPage() {
           </div>
         </dl>
         <div className="mt-12 flex flex-wrap gap-3">
-          <CtaLink href="/get-started/">Run the demo</CtaLink>
-          <CtaLink href={site.github} external variant="ghost">
+          <CtaLink href={site.github} external>
             Open the engine
+          </CtaLink>
+          <CtaLink href="/pricing/" variant="ghost">
+            Cloud pricing hypotheses
           </CtaLink>
         </div>
       </main>

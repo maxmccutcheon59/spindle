@@ -20,7 +20,7 @@ Spindle Agent (engine remains MIT).
 
 | Path | Verdict |
 |------|---------|
-| **Storage / infra SaaS** (KV + Cloud + Agent) | **Not yet.** The MIT engine ships. Cloud and Agent pages are an early-access website experiment, not a hosted product. |
+| **Storage / infra SaaS** (KV + Cloud + Agent that knows your store) | **Yes — this is Spindle.** Defendable, ships today. |
 | Multi-product SaaS layers on the same data plane | Later, after Cloud has real tenants |
 | Agentic AI / LLM *on top of Spindle* | Natural expansion (Agent already exists) — not a new company name |
 | Own “certain infrastructure” (storage, regions, ops) | Same company — that’s Cloud maturing |
@@ -32,7 +32,7 @@ don’t invent five industries on the homepage.
 
 ## Suggested sequence
 
-1. Keep shipping the MIT engine. Cloud pages stay an experiment; only enable live Stripe if a charge is described as not provisioning storage (see SETUP.md).
+1. Keep shipping Spindle Cloud; take payments via Stripe (see SETUP.md).
 2. Form **Spindle LLC** (or similar) in your state — file articles, EIN, business bank.
 3. Update Stripe + site footer: “Spindle LLC · founded by Max McCutcheon”.
 4. Sign a short **IP assignment**: Max → LLC (engine license stays MIT; Cloud/Agent/trademarks assign).
@@ -51,3 +51,14 @@ don’t invent five industries on the homepage.
 Until an LLC exists, invoices and Stripe payouts are under your name/email
 (`maxmccutcheon59@gmail.com`). After formation, re-issue Stripe under the LLC
 and update the site ownership line.
+
+## Cloud status (marketing)
+
+Spindle Cloud hosted durability is **not** a live billed multi-tenant product yet.
+Public GitHub Pages is static. Stripe Payment Links / Checkout API must be
+explicitly wired before claiming live card checkout. Do not publish SLA, PITR,
+dashboard, or storage-quota claims as shipped until they exist. Pricing tiers
+are founding hypotheses. Prefer CTA email **MaxMcCutcheon1@outlook.com**; keep
+**maxmccutcheon59@gmail.com** in ownership notes until Max consolidates after
+LLC formation.
+

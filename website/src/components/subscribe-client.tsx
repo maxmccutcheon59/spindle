@@ -97,10 +97,10 @@ export function SubscribeClient({ planId }: { planId: PlanId }) {
     // 4) Production without Stripe yet — email the founder to complete payment.
     setMode("email");
     const subject = encodeURIComponent(
-      `Spindle early-access note (${selected.name})`,
+      `Spindle Cloud ${selected.name} subscription`,
     );
     const body = encodeURIComponent(
-      `Hi Max,\n\nI'm writing about the early-access ${selected.name} price (${selected.price}${selected.period}).\n\nEmail: ${email}\n\nI understand this does not provision a database.\n`,
+      `Hi Max,\n\nI'd like to subscribe to Spindle Cloud ${selected.name} (${selected.price}${selected.period}).\n\nWork email: ${email}\n\nPlease send a Stripe payment link or invoice.\n`,
     );
     window.location.href = `mailto:${site.author.email}?subject=${subject}&body=${body}`;
     setBusy(false);
@@ -110,7 +110,7 @@ export function SubscribeClient({ planId }: { planId: PlanId }) {
     ? `Pay ${plan.price}${plan.period} — card or bank`
     : allowDemoCheckout()
       ? `Start demo checkout · ${plan.price}${plan.period}`
-      : `Email to subscribe · ${plan.price}${plan.period}`;
+      : `Email Max about ${plan.name} · ${plan.price}${plan.period}`;
 
   return (
     <div className="mx-auto max-w-lg">
@@ -133,13 +133,13 @@ export function SubscribeClient({ planId }: { planId: PlanId }) {
 
       <form onSubmit={onSubmit} className="mt-8 space-y-4">
         <label className="block text-sm font-medium text-ink">
-          Email
+          Work email
           <input
             type="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
+            placeholder="you@company.com"
             className="mt-1.5 w-full rounded-md border border-border bg-card px-3 py-2.5 text-base text-ink outline-none ring-teal focus:ring-2"
             autoComplete="email"
           />
@@ -168,21 +168,26 @@ export function SubscribeClient({ planId }: { planId: PlanId }) {
 
       <div className="mt-4 space-y-2 text-xs leading-relaxed text-muted-foreground">
         <p>
-          Early-access checkout only. When Stripe is configured, the button
-          opens Stripe (card, or US bank when that method is enabled). A
-          charge settles to {site.author.name}&apos;s Stripe account. It does
-          not provision storage, an endpoint, or an uptime target.
+          {site.product} hosted durability is a founding hypothesis — not a live
+          multi-tenant SaaS yet. When Stripe Payment Links or Checkout API are
+          wired, secure checkout is hosted by{" "}
+          <strong className="text-ink/80">Stripe</strong> (cards; US bank/ACH
+          when enabled). Money settles to {site.author.name}&apos;s Stripe, then
+          his bank. Feature bullets on paid plans are targets for when hosting
+          ships.
         </p>
         {!liveLink && !allowDemoCheckout() ? (
           <p className="border-l-2 border-sand pl-3 text-ink/80">
-            Stripe is not configured on this host. The button emails{" "}
+            No live Stripe Payment Links on this static deploy. The button
+            emails{" "}
             <a
               className="font-medium text-teal-deep underline-offset-2 hover:underline"
               href={`mailto:${site.author.email}`}
             >
               {site.author.email}
-            </a>
-            . There is still no hosted database behind either price.
+            </a>{" "}
+            for early access — Max can send a payment link or invoice when ready.
+            Do not expect instant hosted provisioning.
           </p>
         ) : null}
         {!liveLink && allowDemoCheckout() ? (

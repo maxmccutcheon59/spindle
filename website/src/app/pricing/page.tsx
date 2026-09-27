@@ -9,8 +9,8 @@ import {
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Pricing notes — engine is free",
-  description: `The Spindle engine is free (MIT). Builder ${plans[1].price} and Scale ${plans[2].price} are proposed early-access figures. They do not provision storage.`,
+  title: "Pricing — OSS free · Cloud founding hypotheses",
+  description: `Spindle pricing: open source free today. Builder ${plans[1].price}/mo and Scale ${plans[2].price}/mo are founding Cloud hypotheses — not live hosted features. Email ${site.author.email} for early access.`,
   alternates: { canonical: "/pricing/" },
 };
 
@@ -23,13 +23,16 @@ export default function PricingPage() {
           Pricing
         </p>
         <h1 className="mt-3 max-w-2xl font-[family-name:var(--font-display)] text-4xl font-extrabold tracking-tight text-ink md:text-5xl">
-          The engine is free. The other prices are notes.
+          Engine free. Cloud prices are founding hypotheses.
         </h1>
         <p className="mt-5 max-w-2xl text-lg text-muted-foreground">
-          Clone the MIT crate. Builder and Scale are proposed early-access
-          figures from {site.author.name}. If Stripe keys are configured, a
-          card can be charged. That does not provision storage, and there is
-          no uptime target attached to either number.
+          The Rust LSM is MIT and real today. {site.product} hosted durability
+          (storage quotas, PITR, dashboards, uptime targets) is{" "}
+          <strong className="font-semibold text-ink/90">not a live billed
+          product yet</strong>
+          . Stripe Checkout / Payment Links are scaffolded for when Max wires
+          them; until then, email the founder. Money — when charging starts —
+          goes to {site.author.name}.
         </p>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -42,23 +45,24 @@ export default function PricingPage() {
         </div>
 
         <div className="mt-10 border-l-2 border-sand bg-card/70 px-4 py-3 text-sm leading-relaxed text-ink/90">
-          <strong className="text-teal-deep">Checkout: </strong>
-          Stripe Checkout or a Payment Link, only when keys are set. See{" "}
-          <Link
-            href="/enterprise/"
-            className="font-medium text-teal-deep underline-offset-2 hover:underline"
-          >
-            Cloud notes
-          </Link>{" "}
-          and the{" "}
+          <strong className="text-teal-deep">Honesty: </strong>
+          No fake SLA, no claim that 250&nbsp;GB / PITR / audit logs exist as a
+          hosted service today. See the{" "}
           <Link
             href="/case-study/"
             className="font-medium text-teal-deep underline-offset-2 hover:underline"
           >
-            status page
+            honest case study
+          </Link>{" "}
+          and{" "}
+          <Link
+            href="/enterprise/"
+            className="font-medium text-teal-deep underline-offset-2 hover:underline"
+          >
+            positioning brief
           </Link>
-          . The Rust engine is what{" "}
-          <code className="font-mono text-xs">cargo test</code> covers.
+          . The engine already passes{" "}
+          <code className="font-mono text-xs">cargo test</code>.
         </div>
 
         <div className="mt-12 grid gap-6 lg:grid-cols-3">
@@ -72,15 +76,17 @@ export default function PricingPage() {
                   : "border-border/80 bg-card/50",
               )}
             >
-              {plan.highlighted ? (
-                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-teal-deep">
-                  Ships today
-                </p>
-              ) : (
-                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                  Not provisioned
-                </p>
-              )}
+              <p
+                className={
+                  plan.highlighted
+                    ? "text-[11px] font-semibold uppercase tracking-[0.16em] text-teal-deep"
+                    : "text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground"
+                }
+              >
+                {plan.id === "free"
+                  ? "Available now"
+                  : "Cloud · roadmap"}
+              </p>
               <h2 className="mt-2 font-[family-name:var(--font-display)] text-2xl font-bold text-ink">
                 {plan.name}
               </h2>
@@ -128,7 +134,7 @@ export default function PricingPage() {
         </div>
 
         <p className="mt-10 text-center text-sm text-muted-foreground">
-          Questions before you pay? Email{" "}
+          Questions? Email{" "}
           <a
             href={`mailto:${site.author.email}`}
             className="font-medium text-teal-deep underline-offset-2 hover:underline"
