@@ -18,7 +18,7 @@ npm run dev
 
 ## Get paid (Stripe)
 
-Real customers pay by **credit card** or **US bank (ACH)**. Money → your Stripe balance → payouts to **your bank**.
+When Stripe is connected, checkout can charge a **credit card** or **US bank (ACH)**. Funds land in that Stripe balance, then pay out to the linked bank.
 
 Full steps: **[SETUP.md](./SETUP.md)**
 
