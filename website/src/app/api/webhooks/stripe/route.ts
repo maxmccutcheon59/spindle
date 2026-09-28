@@ -17,8 +17,14 @@ export async function POST(req: Request) {
   const secret = process.env.STRIPE_SECRET_KEY;
   const whSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-  if (!secret) {
+  // Fail closed: never accept unsigned events.
+  if (!secret || !whSecret) {
     return NextResponse.json({ error: "stripe_not_configured" }, { status: 503 });
+  }
+
+  const sig = req.headers.get("stripe-signature");
+  if (!sig) {
+    return NextResponse.json({ error: "invalid_signature" }, { status: 400 });
   }
 
   const stripe = new Stripe(secret, {
@@ -29,20 +35,10 @@ export async function POST(req: Request) {
   let event: Stripe.Event;
 
   try {
-    if (whSecret) {
-      const sig = req.headers.get("stripe-signature");
-      if (!sig) {
-        return NextResponse.json({ error: "missing_signature" }, { status: 400 });
-      }
-      event = stripe.webhooks.constructEvent(raw, sig, whSecret);
-    } else {
-      // Dev-only path — always set STRIPE_WEBHOOK_SECRET in production.
-      event = JSON.parse(raw) as Stripe.Event;
-    }
+    event = stripe.webhooks.constructEvent(raw, sig, whSecret);
   } catch (err) {
-    const message = err instanceof Error ? err.message : "invalid payload";
-    console.error("[stripe webhook]", message);
-    return NextResponse.json({ error: "invalid_webhook", message }, { status: 400 });
+    console.error("[stripe webhook]", err instanceof Error ? err.message : err);
+    return NextResponse.json({ error: "invalid_signature" }, { status: 400 });
   }
 
   switch (event.type) {
