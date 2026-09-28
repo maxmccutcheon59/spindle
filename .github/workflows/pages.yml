@@ -29,7 +29,7 @@ jobs:
         with:
           node-version: "22"
       - name: Install
-        run: npm install
+        run: npm ci
       - name: Build static site for GitHub Pages
         run: npm run build:static
         env:
