@@ -64,6 +64,11 @@ impl Db {
             }
         }
         versions.last_sequence = max_seq;
+        // WAL numbers are allocated from the same counter as SSTables but
+        // are not recorded in the MANIFEST; never hand out a live one.
+        if let Some(&newest) = wal_nums.last() {
+            versions.next_file_number = versions.next_file_number.max(newest + 1);
+        }
 
         let (wal, wal_number) = if let Some(&newest) = wal_nums.last() {
             match Wal::open_existing(&opts.path, newest, opts.sync) {
@@ -233,7 +238,13 @@ impl Db {
             vs.add_file(file_meta)?;
         }
         self.inner.imms.write().retain(|m| !Arc::ptr_eq(m, &mem));
-        let _ = fs::remove_file(wal::wal_path(&self.opts.path, old_wal_number));
+        // The flushed memtable holds every record from this WAL and from any
+        // older ones replayed at open, so all of them are now obsolete.
+        for num in wal::list_wal_numbers(&self.opts.path)? {
+            if num <= old_wal_number {
+                let _ = fs::remove_file(wal::wal_path(&self.opts.path, num));
+            }
+        }
         Ok(())
     }
 
@@ -270,17 +281,11 @@ impl Db {
             }
         }
 
-        let version = {
-            let vs = self.inner.versions.lock();
-            vs.current().read().clone()
-        };
-        let metas: Vec<FileMeta> = version
-            .all_tables_newest_first()
-            .into_iter()
-            .cloned()
-            .collect();
+        // Hold one lock across reading the version and opening its tables:
+        // compaction unlinks replaced files under this same lock.
         let vs = self.inner.versions.lock();
-        for meta in &metas {
+        let version = vs.current().read().clone();
+        for meta in version.all_tables_newest_first() {
             let table = vs.get_table(meta)?;
             match table.get(&lookup)? {
                 TableGet::Found(v) => return Ok(Some(v)),
@@ -315,15 +320,11 @@ impl Db {
         let mem = Arc::clone(&self.inner.mem.read());
         let imms = self.inner.imms.read().clone();
         let tables = {
-            let version = self.inner.versions.lock().current().read().clone();
-            let metas: Vec<FileMeta> = version
-                .all_tables_newest_first()
-                .into_iter()
-                .cloned()
-                .collect();
+            // Single lock for version + table opens; see `get_at`.
             let vs = self.inner.versions.lock();
+            let version = vs.current().read().clone();
             let mut out = Vec::new();
-            for meta in &metas {
+            for meta in version.all_tables_newest_first() {
                 out.push(vs.get_table(meta)?);
             }
             out
@@ -444,5 +445,190 @@ mod tests {
             .map(|p| p.key)
             .collect();
         assert_eq!(got, vec![b"b".to_vec()]);
+    }
+
+    fn big_buffer_opts(dir: &Path) -> Options {
+        let mut o = test_opts(dir);
+        o.write_buffer_size = 1 << 20;
+        o
+    }
+
+    /// A flush right after reopen must not reuse the live WAL's file
+    /// number; otherwise later writes land in an unlinked file.
+    #[test]
+    fn writes_after_reopen_and_flush_survive() {
+        let dir = tempdir().unwrap();
+        {
+            let db = Db::open(big_buffer_opts(dir.path())).unwrap();
+            db.put(b"a", b"1").unwrap();
+        }
+        {
+            let db = Db::open(big_buffer_opts(dir.path())).unwrap();
+            db.put(b"b", b"2").unwrap();
+            db.flush().unwrap();
+            db.put(b"c", b"3").unwrap();
+        }
+        let db = Db::open(big_buffer_opts(dir.path())).unwrap();
+        assert_eq!(db.get(b"a").unwrap(), Some(b"1".to_vec()));
+        assert_eq!(db.get(b"b").unwrap(), Some(b"2".to_vec()));
+        assert_eq!(db.get(b"c").unwrap(), Some(b"3".to_vec()));
+    }
+
+    /// Sequence numbers keep increasing across reopen, so a new write
+    /// shadows an older flushed value.
+    #[test]
+    fn overwrite_after_reopen_wins() {
+        let dir = tempdir().unwrap();
+        {
+            let db = Db::open(big_buffer_opts(dir.path())).unwrap();
+            db.put(b"k", b"old").unwrap();
+            db.flush().unwrap();
+        }
+        {
+            let db = Db::open(big_buffer_opts(dir.path())).unwrap();
+            db.put(b"k", b"new").unwrap();
+            db.flush().unwrap();
+        }
+        let db = Db::open(big_buffer_opts(dir.path())).unwrap();
+        assert_eq!(db.get(b"k").unwrap(), Some(b"new".to_vec()));
+    }
+
+    /// A crash between WAL rotation and flush leaves two WALs. Once their
+    /// contents are flushed, both must be retired so the older one is not
+    /// replayed over newer data on a later open.
+    #[test]
+    fn leftover_wal_is_retired_after_flush() {
+        let dir = tempdir().unwrap();
+        {
+            let db = Db::open(big_buffer_opts(dir.path())).unwrap();
+            db.put(b"k", b"old").unwrap();
+        }
+        // Simulate the crash window: a newer, empty WAL exists too.
+        let newest = *wal::list_wal_numbers(dir.path()).unwrap().last().unwrap();
+        drop(Wal::create(dir.path(), newest + 10, SyncPolicy::EveryWrite).unwrap());
+        {
+            let db = Db::open(big_buffer_opts(dir.path())).unwrap();
+            assert_eq!(db.get(b"k").unwrap(), Some(b"old".to_vec()));
+            db.put(b"k", b"new").unwrap();
+            db.flush().unwrap();
+        }
+        let db = Db::open(big_buffer_opts(dir.path())).unwrap();
+        assert_eq!(db.get(b"k").unwrap(), Some(b"new".to_vec()));
+        assert_eq!(wal::list_wal_numbers(dir.path()).unwrap().len(), 1);
+    }
+
+    #[test]
+    fn scan_merges_memtable_and_sstables() {
+        let dir = tempdir().unwrap();
+        let db = Db::open(big_buffer_opts(dir.path())).unwrap();
+        db.put(b"a", b"1").unwrap();
+        db.put(b"b", b"1").unwrap();
+        db.put(b"c", b"1").unwrap();
+        db.flush().unwrap();
+        db.put(b"b", b"2").unwrap();
+        db.delete(b"c").unwrap();
+        db.put(b"d", b"2").unwrap();
+        let snap = db.snapshot();
+        db.put(b"a", b"3").unwrap();
+
+        let latest: Vec<_> = db
+            .scan(None, None)
+            .unwrap()
+            .map(|p| (p.key, p.value))
+            .collect();
+        assert_eq!(
+            latest,
+            vec![
+                (b"a".to_vec(), b"3".to_vec()),
+                (b"b".to_vec(), b"2".to_vec()),
+                (b"d".to_vec(), b"2".to_vec()),
+            ]
+        );
+        let at_snap: Vec<_> = db
+            .scan_snapshot(Some(b"a"), Some(b"c"), snap)
+            .unwrap()
+            .map(|p| (p.key, p.value))
+            .collect();
+        assert_eq!(
+            at_snap,
+            vec![
+                (b"a".to_vec(), b"1".to_vec()),
+                (b"b".to_vec(), b"2".to_vec()),
+            ]
+        );
+    }
+
+    /// Background compaction folds L0 into L1 without losing or
+    /// resurrecting data, and the result survives reopen.
+    #[test]
+    fn background_compaction_preserves_data() {
+        let dir = tempdir().unwrap();
+        let mut o = big_buffer_opts(dir.path());
+        o.disable_compaction = false;
+        {
+            let db = Db::open(o.clone()).unwrap();
+            for round in 0..6u32 {
+                for i in 0..20u32 {
+                    let v = format!("r{round}-{i}");
+                    db.put(format!("k{i:02}").as_bytes(), v.as_bytes()).unwrap();
+                }
+                db.delete(format!("k{round:02}").as_bytes()).unwrap();
+                db.flush().unwrap();
+            }
+            // Wait for L0 to drain below the trigger.
+            let mut drained = false;
+            for _ in 0..200 {
+                let l0 = db.inner.versions.lock().current().read().files[0].len();
+                if l0 < 4 {
+                    drained = true;
+                    break;
+                }
+                std::thread::sleep(std::time::Duration::from_millis(25));
+            }
+            assert!(drained, "compaction never ran");
+        }
+        let db = Db::open(o).unwrap();
+        for i in 0..20u32 {
+            let got = db.get(format!("k{i:02}").as_bytes()).unwrap();
+            // k{r} is deleted at the end of round r; only the last round's
+            // delete (k05) is not overwritten by a later round.
+            let want = (i != 5).then(|| format!("r5-{i}").into_bytes());
+            assert_eq!(got, want, "k{i:02}");
+        }
+    }
+
+    /// Reads racing with compaction must never fail because a table they
+    /// were about to open was unlinked underneath them.
+    #[test]
+    fn reads_race_compaction_without_errors() {
+        let dir = tempdir().unwrap();
+        let mut o = big_buffer_opts(dir.path());
+        o.disable_compaction = false;
+        let db = Arc::new(Db::open(o).unwrap());
+        let stop = Arc::new(std::sync::atomic::AtomicBool::new(false));
+        let readers: Vec<_> = (0..4)
+            .map(|_| {
+                let db = Arc::clone(&db);
+                let stop = Arc::clone(&stop);
+                std::thread::spawn(move || {
+                    while !stop.load(Ordering::Relaxed) {
+                        db.get(b"k05").unwrap();
+                        db.scan(None, None).unwrap().count();
+                    }
+                })
+            })
+            .collect();
+        for round in 0..40u32 {
+            for i in 0..10u32 {
+                db.put(format!("k{i:02}").as_bytes(), format!("{round}").as_bytes())
+                    .unwrap();
+            }
+            db.flush().unwrap();
+        }
+        stop.store(true, Ordering::Relaxed);
+        for r in readers {
+            r.join().expect("reader panicked");
+        }
+        assert_eq!(db.get(b"k05").unwrap(), Some(b"39".to_vec()));
     }
 }

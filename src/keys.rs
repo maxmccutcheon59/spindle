@@ -86,6 +86,26 @@ impl InternalKey {
         }
         b.value_type.cmp(&a.value_type)
     }
+
+    /// [`Self::cmp_internal`] on encoded keys, without allocating.
+    ///
+    /// Raw byte order is *not* internal order: the tag is little-endian,
+    /// so comparing encoded bytes would misorder versions of one user key.
+    pub fn cmp_encoded(a: &[u8], b: &[u8]) -> Ordering {
+        if a.len() < 8 || b.len() < 8 {
+            return a.cmp(b);
+        }
+        let (ua, ta) = a.split_at(a.len() - 8);
+        let (ub, tb) = b.split_at(b.len() - 8);
+        ua.cmp(ub).then_with(|| {
+            let pa = u64::from_le_bytes(ta.try_into().unwrap());
+            let pb = u64::from_le_bytes(tb.try_into().unwrap());
+            // Sequence descending, then type descending.
+            (pb >> 8)
+                .cmp(&(pa >> 8))
+                .then((pb & 0xff).cmp(&(pa & 0xff)))
+        })
+    }
 }
 
 impl Ord for InternalKey {
@@ -149,5 +169,29 @@ mod tests {
         let a = InternalKey::new(b"a".to_vec(), 1, ValueType::Value);
         let b = InternalKey::new(b"b".to_vec(), 100, ValueType::Value);
         assert!(a < b);
+    }
+
+    /// `cmp_encoded` must agree with `cmp_internal`, including cases where
+    /// raw byte order differs (little-endian tags, prefix user keys).
+    #[test]
+    fn cmp_encoded_matches_cmp_internal() {
+        let keys = [
+            InternalKey::new(b"a".to_vec(), 1, ValueType::Value),
+            InternalKey::new(b"a".to_vec(), 2, ValueType::Value),
+            InternalKey::new(b"a".to_vec(), 256, ValueType::Value),
+            InternalKey::new(b"a".to_vec(), 256, ValueType::Deletion),
+            InternalKey::new(b"a\x00".to_vec(), 1, ValueType::Value),
+            InternalKey::new(b"ab".to_vec(), 7, ValueType::Deletion),
+            InternalKey::new(Vec::new(), 3, ValueType::Value),
+        ];
+        for x in &keys {
+            for y in &keys {
+                assert_eq!(
+                    InternalKey::cmp_encoded(&x.encode(), &y.encode()),
+                    InternalKey::cmp_internal(x, y),
+                    "{x:?} vs {y:?}"
+                );
+            }
+        }
     }
 }

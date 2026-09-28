@@ -99,7 +99,9 @@ impl TableBuilder {
 
     /// Add a key/value. Keys must be in internal-key sorted order.
     pub fn add(&mut self, key: &[u8], value: &[u8]) -> Result<()> {
-        if !self.last_key.is_empty() && key < self.last_key.as_slice() {
+        if !self.last_key.is_empty()
+            && InternalKey::cmp_encoded(key, &self.last_key) == std::cmp::Ordering::Less
+        {
             return Err(Error::InvalidArgument(
                 "SSTable keys must be added in sorted order".into(),
             ));
@@ -287,7 +289,7 @@ impl Table {
         for (sep, value) in self.index_block.iter() {
             let handle = BlockHandle::decode(&value)?;
             chosen = Some(handle);
-            if sep.as_slice() >= target {
+            if InternalKey::cmp_encoded(&sep, target) != std::cmp::Ordering::Less {
                 break;
             }
         }
@@ -509,6 +511,61 @@ mod tests {
             t.get(&LookupKey::new(b"missing", 1000)).unwrap(),
             TableGet::NotFound
         );
+    }
+
+    /// Several versions of one key, spread over many tiny blocks, must
+    /// build in internal order and resolve correctly at every snapshot.
+    #[test]
+    fn multi_version_keys_across_blocks() {
+        let dir = tempdir().unwrap();
+        let path = dir.path().join("2.sst");
+        let mut b = TableBuilder::new(path.clone(), 32, 10).unwrap();
+        // Internal order: user key asc, sequence desc.
+        let mut rows = Vec::new();
+        for (key, seqs) in [(&b"a"[..], vec![300u64, 200, 100]), (b"b", vec![260, 5])] {
+            for s in seqs {
+                let t = if s == 200 {
+                    ValueType::Deletion
+                } else {
+                    ValueType::Value
+                };
+                rows.push((InternalKey::new(key.to_vec(), s, t), format!("{s}")));
+            }
+        }
+        for (ik, v) in &rows {
+            b.add(&ik.encode(), v.as_bytes()).unwrap();
+        }
+        b.finish().unwrap();
+
+        let t = Table::open(&path).unwrap();
+        let get = |k: &[u8], s| t.get(&LookupKey::new(k, s)).unwrap();
+        assert_eq!(get(b"a", 1000), TableGet::Found(b"300".to_vec()));
+        assert_eq!(get(b"a", 250), TableGet::Deleted);
+        assert_eq!(get(b"a", 150), TableGet::Found(b"100".to_vec()));
+        assert_eq!(get(b"a", 50), TableGet::NotFound);
+        assert_eq!(get(b"b", 1000), TableGet::Found(b"260".to_vec()));
+        assert_eq!(get(b"b", 100), TableGet::Found(b"5".to_vec()));
+
+        let got: Vec<u64> = t.iter().unwrap().map(|r| r.unwrap().0.sequence).collect();
+        assert_eq!(got, vec![300, 200, 100, 260, 5]);
+    }
+
+    #[test]
+    fn rejects_out_of_order_keys() {
+        let dir = tempdir().unwrap();
+        let mut b = TableBuilder::new(dir.path().join("3.sst"), 64, 10).unwrap();
+        b.add(
+            &InternalKey::new(b"a".to_vec(), 1, ValueType::Value).encode(),
+            b"",
+        )
+        .unwrap();
+        // Same user key, newer sequence, must come *before* seq 1.
+        assert!(b
+            .add(
+                &InternalKey::new(b"a".to_vec(), 2, ValueType::Value).encode(),
+                b""
+            )
+            .is_err());
     }
 
     #[test]

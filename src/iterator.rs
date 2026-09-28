@@ -181,3 +181,72 @@ pub fn scan_range(
 
     Ok(KvIter::from_pairs(pairs))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn ik(k: &str, seq: u64) -> (InternalKey, Vec<u8>) {
+        (
+            InternalKey::new(k.as_bytes().to_vec(), seq, ValueType::Value),
+            seq.to_string().into_bytes(),
+        )
+    }
+
+    #[test]
+    fn merge_yields_internal_order() {
+        let merged = merge_internal_keys(vec![
+            vec![ik("a", 1), ik("c", 3)],
+            vec![ik("a", 5), ik("b", 2)],
+            vec![],
+            vec![ik("c", 9)],
+        ]);
+        let got: Vec<(String, u64)> = merged
+            .into_iter()
+            .map(|(k, _)| (String::from_utf8(k.user_key).unwrap(), k.sequence))
+            .collect();
+        assert_eq!(
+            got,
+            vec![
+                ("a".into(), 5),
+                ("a".into(), 1),
+                ("b".into(), 2),
+                ("c".into(), 9),
+                ("c".into(), 3),
+            ]
+        );
+    }
+
+    #[test]
+    fn scan_range_respects_bounds_snapshot_and_tombstones() {
+        let mut mem = MemTable::new();
+        mem.add(
+            InternalKey::new(b"a".to_vec(), 1, ValueType::Value),
+            b"a1".to_vec(),
+        );
+        mem.add(
+            InternalKey::new(b"b".to_vec(), 2, ValueType::Value),
+            b"b2".to_vec(),
+        );
+        mem.add(
+            InternalKey::new(b"b".to_vec(), 4, ValueType::Deletion),
+            Vec::new(),
+        );
+        mem.add(
+            InternalKey::new(b"c".to_vec(), 3, ValueType::Value),
+            b"c3".to_vec(),
+        );
+        let keys = |start, end, snap| -> Vec<Vec<u8>> {
+            scan_range(&mem, &[], &[], start, end, snap)
+                .unwrap()
+                .map(|p| p.key)
+                .collect()
+        };
+        assert_eq!(keys(None, None, 10), vec![b"a".to_vec(), b"c".to_vec()]);
+        assert_eq!(
+            keys(None, None, 3),
+            vec![b"a".to_vec(), b"b".to_vec(), b"c".to_vec()]
+        );
+        assert_eq!(keys(Some(b"b"), Some(b"c"), 3), vec![b"b".to_vec()]);
+    }
+}
