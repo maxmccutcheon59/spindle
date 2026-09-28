@@ -30,7 +30,7 @@ default = []
 rocksdb-bench = ["dep:rocksdb"]
 
 [dependencies.rocksdb]
-version = "0.22"
+version = "0.25"
 optional = true
 default-features = false
 features = ["lz4"]
