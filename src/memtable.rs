@@ -7,7 +7,7 @@
 use std::collections::BTreeMap;
 use std::sync::atomic::{AtomicUsize, Ordering as AtomicOrdering};
 
-use crate::keys::{InternalKey, LookupKey, ValueType};
+use crate::keys::{InternalKey, LookupKey, SequenceNumber, ValueType};
 
 /// Approximate memory accounting for flush decisions.
 #[derive(Debug, Default)]
@@ -65,6 +65,27 @@ impl MemTable {
 
     pub fn iter(&self) -> impl Iterator<Item = (&InternalKey, &Vec<u8>)> + '_ {
         self.map.iter()
+    }
+
+    /// Copy the entries a scan of `[start, end)` at `snapshot` can see, so
+    /// the caller can release the memtable lock before doing table I/O.
+    pub fn copy_range(
+        &self,
+        start: Option<&[u8]>,
+        end: Option<&[u8]>,
+        snapshot: SequenceNumber,
+    ) -> MemTable {
+        let mut out = MemTable::new();
+        for (k, v) in &self.map {
+            if k.sequence > snapshot
+                || start.is_some_and(|s| k.user_key.as_slice() < s)
+                || end.is_some_and(|e| k.user_key.as_slice() >= e)
+            {
+                continue;
+            }
+            out.add(k.clone(), v.clone());
+        }
+        out
     }
 }
 
