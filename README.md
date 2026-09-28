@@ -53,7 +53,7 @@ cargo clippy --all-targets -- -D warnings
 | Compaction | Background thread `spindle-compact`. L0 at 4 files; higher levels grow ×10. Seven levels (0–6) |
 | Reads | Memtable, then immutable memtables, then SSTables. Bloom in front of each table |
 | MVCC | Monotonic sequence numbers. `snapshot` / `get_snapshot` / `scan_snapshot` |
-| Tests | Persistence, flush, MVCC, `kill -9` replay ([`tests/crash_kill9.rs`](tests/crash_kill9.rs)), SSTable fuzz |
+| Tests | 40 tests: persistence, flush, MVCC, compaction (L0→L1, tombstones, worker), MANIFEST recovery, reopen/WAL regressions, reads racing compaction, `kill -9` replay ([`tests/crash_kill9.rs`](tests/crash_kill9.rs)), SSTable fuzz |
 
 Public API (`src/lib.rs`): `Db`, `open`, `Options`, `SyncPolicy`, `Snapshot`, `KvIter`, `Error`, `Result`. `Table` is also exported.
 
