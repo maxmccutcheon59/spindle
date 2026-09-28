@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 const notes = [
   {
     title: "Memtable",
-    body: "BTreeMap with tombstones under a single writer. Readers observe Arc snapshots. Deletes stay until compaction so older snapshots remain correct.",
+    body: "BTreeMap with tombstones under a single writer and a reader-writer lock, held only for one insert. Deletes stay until compaction so older snapshots remain correct.",
   },
   {
     title: "WAL + fsync",
@@ -31,8 +31,8 @@ const notes = [
     body: "Leveled ×10. L0 file-count trigger and per-level byte thresholds. Tombstones drop only at the bottom level.",
   },
   {
-    title: "Known simplification",
-    body: "Older versions may be dropped during compaction even if a long-lived snapshot still needs them. Snapshot correctness across compaction is tracked as future work.",
+    title: "Snapshots pin old versions",
+    body: "Compaction keeps every version a live snapshot can still see, so a long-lived snapshot holds old data on disk until it is dropped.",
   },
 ] as const;
 

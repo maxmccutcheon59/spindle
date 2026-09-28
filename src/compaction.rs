@@ -17,8 +17,9 @@ use parking_lot::Mutex;
 
 use crate::error::Result;
 use crate::iterator::merge_internal_keys;
-use crate::keys::{InternalKey, ValueType};
+use crate::keys::{InternalKey, SequenceNumber, ValueType};
 use crate::options::Options;
+use crate::snapshots::SnapshotList;
 use crate::sstable::TableBuilder;
 use crate::version::{sstable_path, CompactionJob, FileMeta, VersionSet};
 
@@ -57,13 +58,17 @@ impl Drop for CompactionHandle {
     }
 }
 
-pub fn spawn_compaction(opts: Options, versions: Arc<Mutex<VersionSet>>) -> CompactionHandle {
+pub fn spawn_compaction(
+    opts: Options,
+    versions: Arc<Mutex<VersionSet>>,
+    snapshots: Arc<SnapshotList>,
+) -> CompactionHandle {
     let (tx, rx) = crossbeam_channel::unbounded();
     let stop = Arc::new(AtomicBool::new(false));
     let stop2 = Arc::clone(&stop);
     let join = thread::Builder::new()
         .name("spindle-compact".into())
-        .spawn(move || worker(opts, versions, rx, stop2))
+        .spawn(move || worker(opts, versions, snapshots, rx, stop2))
         .expect("spawn compaction thread");
     CompactionHandle {
         tx,
@@ -75,6 +80,7 @@ pub fn spawn_compaction(opts: Options, versions: Arc<Mutex<VersionSet>>) -> Comp
 fn worker(
     opts: Options,
     versions: Arc<Mutex<VersionSet>>,
+    snapshots: Arc<SnapshotList>,
     rx: Receiver<CompactionMsg>,
     stop: Arc<AtomicBool>,
 ) {
@@ -93,17 +99,26 @@ fn worker(
             vs.pick_compaction(&opts)
         };
         if let Some(job) = job {
-            if let Err(e) = run_compaction(&opts, &versions, job) {
+            // Read before touching any input so a snapshot taken during the
+            // compaction can only be newer than this bound.
+            let oldest_snapshot = snapshots.oldest();
+            if let Err(e) = run_compaction(&opts, &versions, job, oldest_snapshot) {
                 eprintln!("spindle: compaction error: {e}");
             }
         }
     }
 }
 
+/// Merge `job.inputs` into one output table.
+///
+/// `oldest_snapshot` is the oldest sequence any reader may still request. For
+/// each user key we keep every version newer than it, plus the newest version
+/// at or below it; anything older is shadowed for every possible reader.
 fn run_compaction(
     opts: &Options,
     versions: &Arc<Mutex<VersionSet>>,
     job: CompactionJob,
+    oldest_snapshot: SequenceNumber,
 ) -> Result<()> {
     // Collect all internal keys from inputs, merge, drop obsolete.
     let mut iters: Vec<Vec<(InternalKey, Vec<u8>)>> = Vec::new();
@@ -121,22 +136,24 @@ fn run_compaction(
     }
 
     let merged = merge_internal_keys(iters);
-    // Drop older versions of the same user key (compaction for full
-    // snapshot retention would keep keys ≥ oldest snapshot; we keep
-    // only the newest for simplicity — see DESIGN.md MVCC section).
+    let bottom_level = job.output_level as usize == crate::version::NUM_LEVELS - 1;
     let mut compacted: Vec<(InternalKey, Vec<u8>)> = Vec::new();
-    let mut last_user: Option<Vec<u8>> = None;
+    let mut current_key: Option<Vec<u8>> = None;
+    let mut newer_seq: Option<SequenceNumber> = None;
     for (k, v) in merged {
-        if last_user.as_ref() == Some(&k.user_key) {
+        if current_key.as_ref() != Some(&k.user_key) {
+            current_key = Some(k.user_key.clone());
+            newer_seq = None;
+        }
+        // Hidden by a newer version that every reader can already see.
+        let shadowed = newer_seq.is_some_and(|newer| newer <= oldest_snapshot);
+        newer_seq = Some(k.sequence);
+        if shadowed {
             continue;
         }
-        last_user = Some(k.user_key.clone());
-        // Drop tombstones that don't need to cover lower levels when
-        // compacting into the bottom-most relevant range — keep them
-        // unless this is the last level.
-        if k.value_type == ValueType::Deletion
-            && job.output_level as usize == crate::version::NUM_LEVELS - 1
-        {
+        // A tombstone may only vanish at the bottom level, and only once no
+        // reader needs the older versions it hides (those were dropped above).
+        if k.value_type == ValueType::Deletion && bottom_level && k.sequence <= oldest_snapshot {
             continue;
         }
         compacted.push((k, v));
@@ -177,6 +194,9 @@ mod tests {
     use super::*;
     use crate::version::NUM_LEVELS;
     use tempfile::tempdir;
+
+    /// "No snapshots": everything shadowed by a newer version is garbage.
+    const NO_SNAPSHOT: SequenceNumber = SequenceNumber::MAX;
 
     type Row<'a> = (&'a str, u64, Option<&'a str>);
 
@@ -255,7 +275,7 @@ mod tests {
         add_table(&opts, &vs, 0, &[("a", 7, Some("a7")), ("a", 6, None)]);
 
         let job = vs.lock().pick_compaction(&opts).expect("L0 trigger");
-        run_compaction(&opts, &vs, job).unwrap();
+        run_compaction(&opts, &vs, job, NO_SNAPSHOT).unwrap();
 
         assert!(vs.lock().current().read().files[0].is_empty());
         assert_eq!(
@@ -279,7 +299,7 @@ mod tests {
 
         let job = vs.lock().pick_compaction(&opts).unwrap();
         assert_eq!(job.output_level as usize, NUM_LEVELS - 1);
-        run_compaction(&opts, &vs, job).unwrap();
+        run_compaction(&opts, &vs, job, NO_SNAPSHOT).unwrap();
         assert_eq!(
             level_rows(&vs, NUM_LEVELS - 1),
             vec![("b".into(), 1, false)]
@@ -294,7 +314,7 @@ mod tests {
         add_table(&opts, &vs, (NUM_LEVELS - 2) as u32, &[("a", 1, None)]);
 
         let job = vs.lock().pick_compaction(&opts).unwrap();
-        run_compaction(&opts, &vs, job).unwrap();
+        run_compaction(&opts, &vs, job, NO_SNAPSHOT).unwrap();
         let v = vs.lock().current().read().clone();
         assert!(v.files.iter().all(|l| l.is_empty()));
         assert_eq!(
@@ -304,13 +324,64 @@ mod tests {
         );
     }
 
+    /// Versions a live snapshot can see must survive; older ones must not.
+    #[test]
+    fn keeps_versions_needed_by_the_oldest_snapshot() {
+        let (_d, opts, vs) = setup();
+        add_table(&opts, &vs, 0, &[("k", 9, Some("v9")), ("k", 7, Some("v7"))]);
+        add_table(&opts, &vs, 0, &[("k", 5, Some("v5")), ("k", 3, Some("v3"))]);
+        add_table(&opts, &vs, 0, &[("k", 2, Some("v2"))]);
+        add_table(&opts, &vs, 0, &[("k", 1, Some("v1"))]);
+
+        let job = vs.lock().pick_compaction(&opts).unwrap();
+        // A reader pinned at 6 needs v5 (newest <= 6) and everything newer.
+        run_compaction(&opts, &vs, job, 6).unwrap();
+        assert_eq!(
+            level_rows(&vs, 1),
+            vec![
+                ("k".into(), 9, false),
+                ("k".into(), 7, false),
+                ("k".into(), 5, false),
+            ]
+        );
+    }
+
+    /// A tombstone at the bottom level must outlive a snapshot older than it,
+    /// otherwise the value it hides would come back for newer readers.
+    #[test]
+    fn bottom_tombstone_waits_for_snapshots() {
+        let (_d, mut opts, vs) = setup();
+        opts.level_base_bytes = 0;
+        let lvl = (NUM_LEVELS - 2) as u32;
+        add_table(&opts, &vs, lvl, &[("k", 8, None), ("k", 3, Some("old"))]);
+
+        // Snapshot at 5 still needs "old"; the tombstone (8) must stay too.
+        let job = vs.lock().pick_compaction(&opts).unwrap();
+        run_compaction(&opts, &vs, job, 5).unwrap();
+        assert_eq!(
+            level_rows(&vs, NUM_LEVELS - 1),
+            vec![("k".into(), 8, true), ("k".into(), 3, false)]
+        );
+
+        // Once the snapshot is gone both can go.
+        opts.level_base_bytes = 0;
+        let job = vs.lock().pick_compaction(&opts);
+        assert!(job.is_none(), "bottom level is never compacted further");
+    }
+
     #[test]
     fn worker_compacts_on_request_and_stops() {
         let (_d, opts, vs) = setup();
         for i in 0..4u64 {
             add_table(&opts, &vs, 0, &[("k", i + 1, Some("v"))]);
         }
-        let handle = spawn_compaction(opts.clone(), Arc::clone(&vs));
+        let handle = spawn_compaction(
+            opts.clone(),
+            Arc::clone(&vs),
+            Arc::new(SnapshotList::new(Arc::new(
+                std::sync::atomic::AtomicU64::new(100),
+            ))),
+        );
         handle.request_check();
         let mut done = false;
         for _ in 0..200 {

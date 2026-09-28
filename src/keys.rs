@@ -10,6 +10,10 @@ use std::cmp::Ordering;
 /// Monotonic write sequence number. Zero is reserved / unused.
 pub type SequenceNumber = u64;
 
+/// Largest sequence that fits the 56 bits available in an encoded key.
+/// Reading "at" this sequence returns the newest version of every key.
+pub const MAX_SEQUENCE: SequenceNumber = (1 << 56) - 1;
+
 /// Discriminator stored with every internal key.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 #[repr(u8)]

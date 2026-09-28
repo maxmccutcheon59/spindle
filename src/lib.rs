@@ -13,6 +13,7 @@ mod iterator;
 mod keys;
 mod memtable;
 mod options;
+mod snapshots;
 mod sstable;
 mod version;
 mod wal;

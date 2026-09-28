@@ -21,15 +21,24 @@ repo is being able to defend every choice below without looking it up.
 2. **BTreeMap** — simple, cache-friendly, single-writer under a mutex.
 3. **Hash + sorted vector** — fast point lookups, painful range scans.
 
-**Choice:** `BTreeMap<InternalKey, Vec<u8>>`. Single writer, readers see an
-`Arc` snapshot published after each write. Deletes are tombstones
+**Choice:** `BTreeMap<InternalKey, Vec<u8>>` behind a reader-writer lock.
+Writers are serialized by a mutex and hold the exclusive memtable lock only
+for the single insert; readers share it. Deletes are tombstones
 (`ValueType::Deletion`), not removals — older Puts must stay until
 compaction, because a snapshot may still need them.
 
-**Failure modes:** publishing a half-updated map; losing tombstones on
-flush so a deleted key resurrects from an older SSTable.
+An earlier version published a fresh copy of the whole map after every write
+so readers never blocked. That made each `put` cost O(entries buffered) —
+about 200 µs at 1,000 entries — and is gone; see the benchmarks below.
 
-**Tests:** put/get/delete; snapshot sees older value; delete then reopen.
+**Failure modes:** a reader missing data while the memtable is rotated into the
+immutable list (rotation holds the immutable-list lock across the swap, so
+readers always find it in one place or the other); losing tombstones on flush
+so a deleted key resurrects from an older SSTable.
+
+**Tests:** put/get/delete; snapshot sees older value; delete then reopen;
+acknowledged writes stay visible to concurrent readers during constant rotation
+(fails if the swap is made non-atomic).
 
 ---
 
@@ -109,15 +118,26 @@ of it, and tombstones are dropped only when the compaction output level is 6.
 **Why ×10:** LevelDB's default. Write amp ≈ 10 per level; read amp and
 file count stay bounded. RocksDB keeps the same for classic leveled mode.
 
-Compaction merges inputs, keeps the newest version per user key, drops
-tombstones only at the bottom level, writes outputs to `level+1`, updates
-MANIFEST, unlinks inputs.
+Compaction merges inputs, writes outputs to `level+1`, updates MANIFEST, and
+unlinks inputs. For each user key it keeps every version newer than the oldest
+live snapshot, plus the newest version at or below it (LevelDB's rule);
+anything older is invisible to every possible reader and is dropped. A
+tombstone is dropped only at the bottom level and only once no snapshot is
+older than it — otherwise the value it hides would reappear.
 
-**Known simplification:** we drop older versions during compaction even if
-an open snapshot might need them. Snapshot correctness across compaction
-needs a snapshot list + "earliest seq to preserve" — tracked as future
-work. Snapshots are correct against data that has not yet been compacted
-away.
+**Snapshots pin garbage collection.** `Db::snapshot()` registers its sequence
+in a registry; the last clone of a `Snapshot` unregisters it on drop. Plain
+`get`/`scan` read "at the newest sequence" and never need old versions. The
+registry read and the sequence read happen under one lock, so a snapshot taken
+while a compaction is starting can only be newer than the bound the compaction
+uses.
+
+**Cost:** a snapshot held for a long time keeps old versions alive on disk.
+
+**Tests:** unit tests for the keep/drop rule with a pinned sequence; a database
+test that reads through a snapshot after compaction has run; a randomized model
+test (`tests/model.rs`) comparing the database, including snapshots, flushes,
+compaction and reopen, against a `BTreeMap`.
 
 ---
 
@@ -133,8 +153,9 @@ skip tombstones in the user-visible stream. API: `scan(start, end)` and
 ## 7. MVCC
 
 Every write allocates a monotonic `SequenceNumber`. Internal keys pack
-`(seq << 8 | type)`. Snapshots are just a sequence number; reads ignore
-keys with `seq > snapshot`.
+`(seq << 8 | type)`. A snapshot is a sequence number plus a registration that
+keeps compaction from discarding what it can see; reads ignore keys with
+`seq > snapshot`.
 
 ---
 
@@ -154,19 +175,28 @@ cargo bench --bench basic
 cargo bench --bench rocksdb_compare --features rocksdb-bench  # needs librocksdb + C++ toolchain
 ```
 
-### Spindle microbenchmarks (this machine, 2026-09-18)
+### Spindle microbenchmarks (2026-09-28, 4-core cloud VM)
 
-Short Criterion run (`--sample-size 10`, tmpfs-backed `tempfile` dirs). Treat as
-directional, not a paper result.
+Criterion, 4 s per benchmark, `tempfile` dirs. Treat as directional, not a
+paper result; the durable number in particular depends on the disk.
 
 | Bench | Median latency | Notes |
 |-------|----------------|-------|
-| `put/mem_only_no_sync` | ~256 µs/op | GroupCommit window 60s ≈ rarely fsyncs |
-| `put/durable_every_write` | ~686 µs/op | `fdatasync` after every WAL append |
-| `get/random_after_flush` | ~5.5 µs/op | 10k keys flushed to one SSTable |
+| `put/mem_only_no_sync` | ~1.9 µs/op | GroupCommit window 60s ≈ rarely fsyncs |
+| `put/mem_only_prefilled_{1000,20000,100000}` | ~2.0–2.1 µs/op | flat as the memtable grows |
+| `put/durable_every_write` | ~238 µs/op | `fdatasync` after every WAL append |
+| `get/random_after_flush` | ~8.0 µs/op | 10k keys flushed to one SSTable |
 
-Durable puts are ~2.7× slower than the no-sync path here — expected: we pay
-for `sync_data` on every acknowledged write. Gets after flush are decent for a
+**Before/after of the write-path fix** (same machine, same benchmark file): with
+1,000 entries already buffered a `put` took ~209 µs; it now takes ~2.1 µs
+(~100×). The old cost grew by roughly 0.2 µs per buffered entry (every write
+copied the memtable), so at 20,000 entries the old code took milliseconds per
+put, and the 100,000-entry benchmark did not finish in several minutes.
+The earlier figures in this file (256 µs / 686 µs / 5.5 µs) came from a
+different machine and included that bug.
+
+Durable puts are ~125× slower than the no-sync path — expected: we pay for
+`sync_data` on every acknowledged write. Gets after flush are decent for a
 whole-file load + bloom probe, but will degrade as levels grow (no block cache).
 
 ### RocksDB comparison

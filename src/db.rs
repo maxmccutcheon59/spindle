@@ -10,17 +10,36 @@ use parking_lot::{Mutex, RwLock};
 use crate::compaction::{self, CompactionHandle};
 use crate::error::Result;
 use crate::iterator::{scan_range, KvIter};
-use crate::keys::{InternalKey, LookupKey, SequenceNumber, ValueType};
+use crate::keys::{InternalKey, LookupKey, SequenceNumber, ValueType, MAX_SEQUENCE};
 use crate::memtable::{MemGet, MemTable};
 use crate::options::Options;
+use crate::snapshots::SnapshotList;
 use crate::sstable::{TableBuilder, TableGet};
 use crate::version::{sstable_path, FileMeta, VersionSet};
 use crate::wal::{self, Wal};
 
 /// MVCC read snapshot: all keys with `sequence <= seq` are visible.
-#[derive(Debug, Clone, Copy)]
+///
+/// While a snapshot (or any clone of it) is alive, compaction keeps the
+/// versions it can see, so it always reads the data as of the moment it was
+/// taken. Drop it when done so old versions can be garbage collected.
+#[derive(Debug, Clone)]
 pub struct Snapshot {
     pub(crate) sequence: SequenceNumber,
+    _guard: Arc<SnapshotGuard>,
+}
+
+/// Unpins the snapshot's sequence once the last clone is dropped.
+#[derive(Debug)]
+struct SnapshotGuard {
+    sequence: SequenceNumber,
+    list: Arc<SnapshotList>,
+}
+
+impl Drop for SnapshotGuard {
+    fn drop(&mut self) {
+        self.list.release(self.sequence);
+    }
 }
 
 /// An open Spindle database.
@@ -31,20 +50,21 @@ pub struct Db {
 }
 
 struct DbInner {
-    /// Protects memtable swap, WAL, and sequence allocation.
+    /// Serializes writers; protects the WAL and sequence allocation.
     write: Mutex<WriteState>,
-    /// Active memtable published for readers.
-    mem: RwLock<Arc<MemTable>>,
+    /// Active memtable. Writers hold the exclusive lock only for one insert;
+    /// readers share it. Lock order: `write`, then `imms`, then `mem`.
+    mem: RwLock<MemTable>,
     /// Immutable memtables waiting for flush (newest first).
     imms: RwLock<Vec<Arc<MemTable>>>,
     versions: Arc<Mutex<VersionSet>>,
-    last_sequence: AtomicU64,
+    last_sequence: Arc<AtomicU64>,
+    snapshots: Arc<SnapshotList>,
 }
 
 struct WriteState {
     wal: Wal,
     wal_number: u64,
-    mem: MemTable,
 }
 
 impl Db {
@@ -53,7 +73,7 @@ impl Db {
         fs::create_dir_all(&opts.path)?;
         let mut versions = VersionSet::open(&opts)?;
 
-        // Replay WALs into a recovered memtable.
+        // Replay WALs into the initial memtable.
         let mut recovered = MemTable::new();
         let wal_nums = wal::list_wal_numbers(&opts.path)?;
         let mut max_seq = versions.last_sequence;
@@ -83,29 +103,15 @@ impl Db {
             (Wal::create(&opts.path, n, opts.sync)?, n)
         };
 
-        // Readers and writers share the same recovered contents at open.
-        let mut write_mem = MemTable::new();
-        for (k, v) in recovered.iter() {
-            write_mem.add(k.clone(), v.clone());
-        }
-        let published = Arc::new({
-            let mut m = MemTable::new();
-            for (k, v) in write_mem.iter() {
-                m.add(k.clone(), v.clone());
-            }
-            m
-        });
-
+        let last_sequence = Arc::new(AtomicU64::new(max_seq));
+        let snapshots = Arc::new(SnapshotList::new(Arc::clone(&last_sequence)));
         let inner = Arc::new(DbInner {
-            write: Mutex::new(WriteState {
-                wal,
-                wal_number,
-                mem: write_mem,
-            }),
-            mem: RwLock::new(published),
+            write: Mutex::new(WriteState { wal, wal_number }),
+            mem: RwLock::new(recovered),
             imms: RwLock::new(Vec::new()),
             versions: Arc::new(Mutex::new(versions)),
-            last_sequence: AtomicU64::new(max_seq),
+            last_sequence,
+            snapshots,
         });
 
         let compaction = if opts.disable_compaction {
@@ -114,6 +120,7 @@ impl Db {
             Some(compaction::spawn_compaction(
                 opts.clone(),
                 Arc::clone(&inner.versions),
+                Arc::clone(&inner.snapshots),
             ))
         };
 
@@ -130,9 +137,16 @@ impl Db {
     }
 
     /// Create a read snapshot pinned at the current sequence.
+    ///
+    /// Old versions it can see are kept until it is dropped.
     pub fn snapshot(&self) -> Snapshot {
+        let sequence = self.inner.snapshots.acquire();
         Snapshot {
-            sequence: self.last_sequence(),
+            sequence,
+            _guard: Arc::new(SnapshotGuard {
+                sequence,
+                list: Arc::clone(&self.inner.snapshots),
+            }),
         }
     }
 
@@ -156,7 +170,7 @@ impl Db {
             None => w.wal.append_delete(seq, key)?,
         }
 
-        // 2. Memtable.
+        // 2. Memtable: one insert under the exclusive lock, no copying.
         let ik = InternalKey::new(
             key.to_vec(),
             seq,
@@ -166,30 +180,29 @@ impl Db {
                 ValueType::Deletion
             },
         );
-        w.mem.add(ik, value.unwrap_or_default().to_vec());
-        self.publish_mem(&w.mem);
+        let full = {
+            let mut mem = self.inner.mem.write();
+            mem.add(ik, value.unwrap_or_default().to_vec());
+            mem.approx_bytes() >= self.opts.write_buffer_size
+        };
 
         // 3. Maybe flush.
-        if w.mem.approx_bytes() >= self.opts.write_buffer_size {
+        if full {
             self.rotate_memtable(&mut w)?;
         }
         Ok(())
     }
 
-    fn publish_mem(&self, mem: &MemTable) {
-        let mut published = MemTable::new();
-        for (k, v) in mem.iter() {
-            published.add(k.clone(), v.clone());
-        }
-        *self.inner.mem.write() = Arc::new(published);
-    }
-
     fn rotate_memtable(&self, w: &mut WriteState) -> Result<()> {
-        let mut frozen = MemTable::new();
-        std::mem::swap(&mut frozen, &mut w.mem);
-        let frozen = Arc::new(frozen);
-        self.inner.imms.write().insert(0, Arc::clone(&frozen));
-        *self.inner.mem.write() = Arc::new(MemTable::new());
+        // Move the active memtable into `imms` atomically with respect to
+        // readers, who check `mem` and then `imms`: holding `imms` across the
+        // swap means they never see the data in neither place.
+        let frozen = {
+            let mut imms = self.inner.imms.write();
+            let frozen = Arc::new(std::mem::take(&mut *self.inner.mem.write()));
+            imms.insert(0, Arc::clone(&frozen));
+            frozen
+        };
 
         let new_num = {
             let mut vs = self.inner.versions.lock();
@@ -248,26 +261,23 @@ impl Db {
         Ok(())
     }
 
-    /// Point lookup at the latest sequence.
+    /// Point lookup of the newest version.
     pub fn get(&self, key: &[u8]) -> Result<Option<Vec<u8>>> {
-        self.get_at(key, self.last_sequence())
+        self.get_at(key, MAX_SEQUENCE)
     }
 
-    /// Point lookup under a snapshot.
-    pub fn get_snapshot(&self, key: &[u8], snap: Snapshot) -> Result<Option<Vec<u8>>> {
+    /// Point lookup as of `snap`.
+    pub fn get_snapshot(&self, key: &[u8], snap: &Snapshot) -> Result<Option<Vec<u8>>> {
         self.get_at(key, snap.sequence)
     }
 
     fn get_at(&self, key: &[u8], seq: SequenceNumber) -> Result<Option<Vec<u8>>> {
         let lookup = LookupKey::new(key, seq);
 
-        {
-            let mem = self.inner.mem.read();
-            match mem.get(&lookup) {
-                MemGet::Found(v) => return Ok(Some(v)),
-                MemGet::Deleted => return Ok(None),
-                MemGet::NotFound => {}
-            }
+        match self.inner.mem.read().get(&lookup) {
+            MemGet::Found(v) => return Ok(Some(v)),
+            MemGet::Deleted => return Ok(None),
+            MemGet::NotFound => {}
         }
 
         {
@@ -296,17 +306,17 @@ impl Db {
         Ok(None)
     }
 
-    /// Range scan `[start, end)` at the latest sequence.
+    /// Range scan `[start, end)` over the newest versions.
     pub fn scan(&self, start: Option<&[u8]>, end: Option<&[u8]>) -> Result<KvIter> {
-        self.scan_at(start, end, self.last_sequence())
+        self.scan_at(start, end, MAX_SEQUENCE)
     }
 
-    /// Range scan under a snapshot.
+    /// Range scan as of `snap`.
     pub fn scan_snapshot(
         &self,
         start: Option<&[u8]>,
         end: Option<&[u8]>,
-        snap: Snapshot,
+        snap: &Snapshot,
     ) -> Result<KvIter> {
         self.scan_at(start, end, snap.sequence)
     }
@@ -317,8 +327,13 @@ impl Db {
         end: Option<&[u8]>,
         seq: SequenceNumber,
     ) -> Result<KvIter> {
-        let mem = Arc::clone(&self.inner.mem.read());
-        let imms = self.inner.imms.read().clone();
+        // Take a consistent view of the memtables (same order as rotation),
+        // then release the locks before any table I/O.
+        let (mem, imms) = {
+            let imms = self.inner.imms.read();
+            let mem = self.inner.mem.read().copy_range(start, end, seq);
+            (mem, imms.clone())
+        };
         let tables = {
             // Single lock for version + table opens; see `get_at`.
             let vs = self.inner.versions.lock();
@@ -335,7 +350,7 @@ impl Db {
     /// Force memtable flush (tests / benchmarks).
     pub fn flush(&self) -> Result<()> {
         let mut w = self.inner.write.lock();
-        if !w.mem.is_empty() {
+        if !self.inner.mem.read().is_empty() {
             self.rotate_memtable(&mut w)?;
         }
         Ok(())
@@ -424,7 +439,7 @@ mod tests {
         db.put(b"x", b"new").unwrap();
         assert_eq!(db.get(b"x").unwrap().as_deref(), Some(b"new".as_slice()));
         assert_eq!(
-            db.get_snapshot(b"x", snap).unwrap().as_deref(),
+            db.get_snapshot(b"x", &snap).unwrap().as_deref(),
             Some(b"old".as_slice())
         );
     }
@@ -545,7 +560,7 @@ mod tests {
             ]
         );
         let at_snap: Vec<_> = db
-            .scan_snapshot(Some(b"a"), Some(b"c"), snap)
+            .scan_snapshot(Some(b"a"), Some(b"c"), &snap)
             .unwrap()
             .map(|p| (p.key, p.value))
             .collect();
@@ -595,6 +610,121 @@ mod tests {
             let want = (i != 5).then(|| format!("r5-{i}").into_bytes());
             assert_eq!(got, want, "k{i:02}");
         }
+    }
+
+    /// A snapshot must keep seeing its data after compaction has run, for
+    /// overwritten keys and for keys deleted afterwards.
+    #[test]
+    fn snapshot_survives_compaction() {
+        let dir = tempdir().unwrap();
+        let mut o = big_buffer_opts(dir.path());
+        o.disable_compaction = false;
+        let db = Db::open(o).unwrap();
+        db.put(b"x", b"old").unwrap();
+        db.put(b"d", b"v1").unwrap();
+        db.flush().unwrap();
+        let snap = db.snapshot();
+
+        db.delete(b"d").unwrap();
+        for round in 0..6u32 {
+            db.put(b"x", format!("new{round}").as_bytes()).unwrap();
+            db.put(format!("filler{round}").as_bytes(), b"f").unwrap();
+            db.flush().unwrap();
+        }
+        // Wait for L0 to drain below the compaction trigger.
+        let mut drained = false;
+        for _ in 0..200 {
+            if db.inner.versions.lock().current().read().files[0].len() < 4 {
+                drained = true;
+                break;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(25));
+        }
+        assert!(drained, "compaction never ran");
+
+        assert_eq!(db.get(b"x").unwrap(), Some(b"new5".to_vec()));
+        assert_eq!(db.get(b"d").unwrap(), None);
+        assert_eq!(db.get_snapshot(b"x", &snap).unwrap(), Some(b"old".to_vec()));
+        assert_eq!(db.get_snapshot(b"d", &snap).unwrap(), Some(b"v1".to_vec()));
+        let seen: Vec<_> = db
+            .scan_snapshot(Some(b"d"), Some(b"y"), &snap)
+            .unwrap()
+            .map(|p| (p.key, p.value))
+            .collect();
+        assert_eq!(
+            seen,
+            vec![
+                (b"d".to_vec(), b"v1".to_vec()),
+                (b"x".to_vec(), b"old".to_vec())
+            ]
+        );
+    }
+
+    #[test]
+    fn dropping_snapshots_releases_them() {
+        let dir = tempdir().unwrap();
+        let db = Db::open(big_buffer_opts(dir.path())).unwrap();
+        db.put(b"a", b"1").unwrap();
+        let first = db.snapshot();
+        let pinned = first.sequence;
+        db.put(b"a", b"2").unwrap();
+        db.put(b"a", b"3").unwrap();
+        let second_clone = first.clone();
+        assert_eq!(db.inner.snapshots.oldest(), pinned);
+
+        drop(first);
+        assert_eq!(db.inner.snapshots.oldest(), pinned, "a clone still pins it");
+        drop(second_clone);
+        assert_eq!(db.inner.snapshots.oldest(), db.last_sequence());
+    }
+
+    /// Rotation swaps the memtable while readers look for keys: an
+    /// acknowledged write must be visible at every instant, whether it is
+    /// still in the active memtable, frozen, or already in an SSTable.
+    #[test]
+    fn acknowledged_writes_are_always_visible_during_rotation() {
+        let dir = tempdir().unwrap();
+        let mut o = test_opts(dir.path()); // 1 KiB buffer: rotates constantly
+        o.disable_compaction = false;
+        let db = Arc::new(Db::open(o).unwrap());
+        let acked = Arc::new(AtomicU64::new(0));
+        let stop = Arc::new(std::sync::atomic::AtomicBool::new(false));
+
+        let readers: Vec<_> = (0..3u64)
+            .map(|t| {
+                let (db, acked, stop) = (Arc::clone(&db), Arc::clone(&acked), Arc::clone(&stop));
+                std::thread::spawn(move || {
+                    let mut probe = t;
+                    while !stop.load(Ordering::Relaxed) {
+                        let n = acked.load(Ordering::Acquire);
+                        if n == 0 {
+                            continue;
+                        }
+                        probe = probe
+                            .wrapping_mul(6364136223846793005)
+                            .wrapping_add(1442695040888963407)
+                            % n;
+                        let i = probe + 1;
+                        let got = db.get(format!("key{i:06}").as_bytes()).unwrap();
+                        assert_eq!(got, Some(format!("val{i}").into_bytes()), "key{i:06} lost");
+                    }
+                })
+            })
+            .collect();
+
+        for i in 1..=1500u64 {
+            db.put(
+                format!("key{i:06}").as_bytes(),
+                format!("val{i}").as_bytes(),
+            )
+            .unwrap();
+            acked.store(i, Ordering::Release);
+        }
+        stop.store(true, Ordering::Relaxed);
+        for r in readers {
+            r.join().expect("a reader lost an acknowledged write");
+        }
+        assert_eq!(db.scan(None, None).unwrap().count(), 1500);
     }
 
     /// Reads racing with compaction must never fail because a table they
