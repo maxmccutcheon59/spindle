@@ -68,7 +68,7 @@ export default function HomePage() {
                 {c.label === "Email" ? (
                   <a
                     href={`mailto:${c.value}`}
-                    className="mt-1 block font-mono text-sm text-sand underline-offset-2 hover:text-white hover:underline"
+                    className="mt-1 block break-all font-mono text-sm text-sand underline-offset-2 hover:text-white hover:underline"
                   >
                     {c.value}
                   </a>

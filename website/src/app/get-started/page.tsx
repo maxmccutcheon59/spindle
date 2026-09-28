@@ -22,7 +22,7 @@ export default function GetStartedPage() {
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-deep">
           Get started
         </p>
-        <h1 className="mt-3 font-[family-name:var(--font-display)] text-4xl font-extrabold tracking-tight text-ink md:text-5xl">
+        <h1 className="mt-3 font-[family-name:var(--font-display)] text-3xl font-extrabold tracking-tight text-ink sm:text-4xl md:text-5xl">
           Clone, test, put a key.
         </h1>
         <p className="mt-5 text-lg leading-relaxed text-muted-foreground">

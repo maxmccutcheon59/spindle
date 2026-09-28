@@ -21,7 +21,7 @@ export default function PlaygroundPage() {
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-deep">
           Playground
         </p>
-        <h1 className="mt-3 max-w-2xl font-[family-name:var(--font-display)] text-4xl font-extrabold tracking-tight text-ink md:text-5xl">
+        <h1 className="mt-3 max-w-2xl font-[family-name:var(--font-display)] text-3xl font-extrabold tracking-tight text-ink sm:text-4xl md:text-5xl">
           Put a key. Watch the log.
         </h1>
         <p className="mt-5 max-w-2xl text-lg text-muted-foreground">
