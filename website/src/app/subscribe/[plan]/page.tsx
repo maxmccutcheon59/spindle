@@ -1,52 +1,15 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import { notFound } from "next/navigation";
-import { SubscribeClient } from "@/components/subscribe-client";
-import { SiteFooter, SiteHeader } from "@/components/site-chrome";
-import type { PlanId } from "@/lib/site";
+import { redirect } from "next/navigation";
 
-const allowed: PlanId[] = ["builder", "scale"];
+// Checkout was removed; old subscribe links go to the Cloud waitlist.
+export const metadata: Metadata = { robots: { index: false, follow: true } };
 
 export function generateStaticParams() {
-  return allowed.map((plan) => ({ plan }));
+  return [{ plan: "builder" }, { plan: "scale" }];
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ plan: string }>;
-}): Promise<Metadata> {
-  const { plan } = await params;
-  const title = plan === "scale" ? "Subscribe · Scale" : "Subscribe · Builder";
-  return {
-    title,
-    robots: { index: false, follow: true },
-  };
-}
+export const dynamicParams = false;
 
-export default async function SubscribePlanPage({
-  params,
-}: {
-  params: Promise<{ plan: string }>;
-}) {
-  const { plan } = await params;
-  if (!allowed.includes(plan as PlanId)) notFound();
-
-  return (
-    <div>
-      <SiteHeader />
-      <main className="px-5 py-12 md:px-8 md:py-16">
-        <Suspense
-          fallback={
-            <p className="mx-auto max-w-lg text-muted-foreground">
-              Loading checkout…
-            </p>
-          }
-        >
-          <SubscribeClient planId={plan as PlanId} />
-        </Suspense>
-      </main>
-      <SiteFooter />
-    </div>
-  );
+export default function SubscribeRedirect() {
+  redirect("/cloud/");
 }

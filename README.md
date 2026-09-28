@@ -59,7 +59,7 @@ Public API (`src/lib.rs`): `Db`, `open`, `Options`, `SyncPolicy`, `Snapshot`, `K
 
 ## Optional: website
 
-A static site is on [GitHub Pages](https://maxmccutcheon59.github.io/spindle/). Cloud and Stripe mentions there are an early-access sketch, not a hosted database. See [`website/README.md`](website/README.md).
+A static site is on [GitHub Pages](https://maxmccutcheon59.github.io/spindle/). Spindle Cloud there is a waitlist for a possible managed version, not a hosted database; nothing is for sale. See [`website/README.md`](website/README.md).
 
 ## License
 

@@ -26,7 +26,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.92,
     },
     {
-      url: `${site.url}/pricing/`,
+      url: `${site.url}/cloud/`,
       lastModified,
       changeFrequency: "weekly",
       priority: 0.95,

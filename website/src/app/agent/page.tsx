@@ -22,7 +22,7 @@ export default function AgentPage() {
         </h1>
         <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
           Co-pilot for Max&apos;s engine and Cloud roadmap — durability,
-          pricing hypotheses, APIs, and workload fit. On GitHub Pages the local
+          the Cloud waitlist, APIs, and workload fit. On GitHub Pages the local
           Spindle brain answers from product docs (no server). Add{" "}
           <code className="font-mono text-sm">OPENAI_API_KEY</code> on a
           Next.js host for GPT-backed answers. Does not invent customers or live

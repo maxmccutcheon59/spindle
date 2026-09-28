@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { site } from "@/lib/site";
 import {
   CtaLink,
@@ -33,13 +34,13 @@ export default function GetStartedPage() {
           >
             {site.author.email}
           </a>{" "}
-          for early access, or see{" "}
-          <a
-            href="/pricing/"
+          or join the{" "}
+          <Link
+            href="/cloud/"
             className="font-medium text-teal-deep underline-offset-2 hover:underline"
           >
-            founding price hypotheses
-          </a>
+            Cloud waitlist
+          </Link>
           .
         </p>
 

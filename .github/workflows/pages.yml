@@ -36,9 +36,6 @@ jobs:
           SPINDLE_STATIC: "1"
           NEXT_PUBLIC_BASE_PATH: "/spindle"
           NEXT_PUBLIC_SITE_URL: "https://maxmccutcheon59.github.io/spindle"
-          # Optional: set these in repo Settings → Secrets so every customer can pay on Pages
-          NEXT_PUBLIC_STRIPE_PAYMENT_LINK_BUILDER: ${{ secrets.NEXT_PUBLIC_STRIPE_PAYMENT_LINK_BUILDER }}
-          NEXT_PUBLIC_STRIPE_PAYMENT_LINK_SCALE: ${{ secrets.NEXT_PUBLIC_STRIPE_PAYMENT_LINK_SCALE }}
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

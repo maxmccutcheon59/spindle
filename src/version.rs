@@ -366,3 +366,141 @@ mod hex {
 }
 
 pub use sstable::sstable_path;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tempfile::tempdir;
+
+    fn meta(dir: &Path, number: u64, level: u32, lo: &str, hi: &str, size: u64) -> FileMeta {
+        FileMeta {
+            number,
+            level,
+            file_size: size,
+            smallest: lo.as_bytes().to_vec(),
+            largest: hi.as_bytes().to_vec(),
+            path: sstable_path(dir, number),
+        }
+    }
+
+    #[test]
+    fn manifest_roundtrip() {
+        let dir = tempdir().unwrap();
+        let opts = Options::new(dir.path());
+        {
+            let mut vs = VersionSet::open(&opts).unwrap();
+            vs.last_sequence = 77;
+            vs.next_file_number = 10;
+            vs.add_file(meta(dir.path(), 3, 0, "a", "m", 100)).unwrap();
+            vs.add_file(meta(dir.path(), 5, 1, "n", "z", 200)).unwrap();
+            vs.add_file(meta(dir.path(), 4, 1, "a", "c", 50)).unwrap();
+        }
+        let vs = VersionSet::open(&opts).unwrap();
+        assert_eq!(vs.last_sequence, 77);
+        assert_eq!(vs.next_file_number, 10);
+        let v = vs.current().read().clone();
+        assert_eq!(v.files[0].len(), 1);
+        // Level >= 1 stays sorted by smallest key.
+        let l1: Vec<u64> = v.files[1].iter().map(|f| f.number).collect();
+        assert_eq!(l1, vec![4, 5]);
+        assert_eq!(v.level_bytes(1), 250);
+    }
+
+    #[test]
+    fn apply_compaction_moves_files() {
+        let dir = tempdir().unwrap();
+        let mut vs = VersionSet::open(&Options::new(dir.path())).unwrap();
+        vs.add_file(meta(dir.path(), 1, 0, "a", "b", 1)).unwrap();
+        vs.add_file(meta(dir.path(), 2, 0, "c", "d", 1)).unwrap();
+        vs.apply_compaction(0, &[1, 2], vec![meta(dir.path(), 3, 1, "a", "d", 2)])
+            .unwrap();
+        let v = vs.current().read().clone();
+        assert!(v.files[0].is_empty());
+        assert_eq!(
+            v.files[1].iter().map(|f| f.number).collect::<Vec<_>>(),
+            vec![3]
+        );
+    }
+
+    #[test]
+    fn rejects_level_out_of_range() {
+        let dir = tempdir().unwrap();
+        let mut vs = VersionSet::open(&Options::new(dir.path())).unwrap();
+        assert!(vs
+            .add_file(meta(dir.path(), 1, NUM_LEVELS as u32, "a", "b", 1))
+            .is_err());
+    }
+
+    #[test]
+    fn l0_newest_first_then_levels() {
+        let dir = tempdir().unwrap();
+        let mut v = Version::new();
+        v.files[0] = vec![
+            meta(dir.path(), 2, 0, "a", "z", 1),
+            meta(dir.path(), 9, 0, "a", "z", 1),
+        ];
+        v.files[2] = vec![meta(dir.path(), 1, 2, "a", "z", 1)];
+        let order: Vec<u64> = v
+            .all_tables_newest_first()
+            .iter()
+            .map(|m| m.number)
+            .collect();
+        assert_eq!(order, vec![9, 2, 1]);
+    }
+
+    #[test]
+    fn pick_compaction_l0_trigger_includes_only_overlapping_l1() {
+        let dir = tempdir().unwrap();
+        let opts = Options::new(dir.path());
+        let mut vs = VersionSet::open(&opts).unwrap();
+        for n in 1..=3 {
+            vs.add_file(meta(dir.path(), n, 0, "c", "f", 1)).unwrap();
+        }
+        vs.add_file(meta(dir.path(), 10, 1, "a", "b", 1)).unwrap(); // disjoint
+        vs.add_file(meta(dir.path(), 11, 1, "e", "h", 1)).unwrap(); // overlaps
+        assert!(
+            vs.pick_compaction(&opts).is_none(),
+            "3 L0 files is below trigger"
+        );
+
+        vs.add_file(meta(dir.path(), 4, 0, "d", "g", 1)).unwrap();
+        let job = vs.pick_compaction(&opts).unwrap();
+        assert_eq!(job.level, 0);
+        assert_eq!(job.output_level, 1);
+        let mut removed = job.remove.clone();
+        removed.sort_unstable();
+        assert_eq!(removed, vec![1, 2, 3, 4, 11]);
+    }
+
+    #[test]
+    fn pick_compaction_by_level_size() {
+        let dir = tempdir().unwrap();
+        let mut opts = Options::new(dir.path());
+        opts.level_base_bytes = 100;
+        let mut vs = VersionSet::open(&opts).unwrap();
+        vs.add_file(meta(dir.path(), 1, 1, "a", "f", 60)).unwrap();
+        vs.add_file(meta(dir.path(), 2, 2, "e", "k", 60)).unwrap();
+        assert!(vs.pick_compaction(&opts).is_none());
+
+        vs.add_file(meta(dir.path(), 3, 1, "g", "z", 60)).unwrap();
+        let job = vs.pick_compaction(&opts).unwrap();
+        assert_eq!((job.level, job.output_level), (1, 2));
+        // Victim is the first L1 file by key, plus its L2 overlap.
+        assert_eq!(job.remove, vec![1, 2]);
+    }
+
+    #[test]
+    fn corrupt_current_is_an_error() {
+        let dir = tempdir().unwrap();
+        fs::write(dir.path().join("CURRENT"), "garbage\n").unwrap();
+        assert!(VersionSet::open(&Options::new(dir.path())).is_err());
+    }
+
+    #[test]
+    fn hex_roundtrip() {
+        let bytes = vec![0u8, 1, 0x7f, 0x80, 0xff];
+        assert_eq!(hex::decode(&hex::encode(&bytes)).unwrap(), bytes);
+        assert!(hex::decode("abc").is_err());
+        assert!(hex::decode("zz").is_err());
+    }
+}

@@ -32,7 +32,7 @@ don’t invent five industries on the homepage.
 
 ## Suggested sequence
 
-1. Keep shipping Spindle Cloud; take payments via Stripe (see SETUP.md).
+1. Keep shipping the engine; gauge Cloud demand through the `/cloud/` waitlist.
 2. Form **Spindle LLC** (or similar) in your state — file articles, EIN, business bank.
 3. Update Stripe + site footer: “Spindle LLC · founded by Max McCutcheon”.
 4. Sign a short **IP assignment**: Max → LLC (engine license stays MIT; Cloud/Agent/trademarks assign).
@@ -54,11 +54,9 @@ and update the site ownership line.
 
 ## Cloud status (marketing)
 
-Spindle Cloud hosted durability is **not** a live billed multi-tenant product yet.
-Public GitHub Pages is static. Stripe Payment Links / Checkout API must be
-explicitly wired before claiming live card checkout. Do not publish SLA, PITR,
-dashboard, or storage-quota claims as shipped until they exist. Pricing tiers
-are founding hypotheses. Prefer CTA email **MaxMcCutcheon1@outlook.com**; keep
+Spindle Cloud is **not built** and nothing is for sale; the site only runs a
+waitlist. There is no checkout. Do not publish prices, SLA, PITR, dashboard, or
+storage-quota claims as shipped until they exist. Prefer CTA email **MaxMcCutcheon1@outlook.com**; keep
 **maxmccutcheon59@gmail.com** in ownership notes until Max consolidates after
 LLC formation.
 

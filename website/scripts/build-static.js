@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable @typescript-eslint/no-require-imports -- CommonJS Node script */
 /**
  * Static / GitHub Pages build.
  * Next.js `output: "export"` cannot include Route Handlers, so we
