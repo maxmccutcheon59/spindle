@@ -21,7 +21,7 @@ crossbeam-channel = "0.5"
 criterion = { version = "0.5", features = ["html_reports"] }
 proptest = "1.5"
 tempfile = "3.14"
-rand = "0.8"
+rand = "0.9"
 
 [features]
 default = []
