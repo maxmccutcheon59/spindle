@@ -13,6 +13,22 @@ const STARTERS = [
 
 type Msg = { role: "user" | "assistant"; content: string };
 
+// Mirror the /api/agent limits so long conversations keep working.
+const MAX_MESSAGES = 12;
+const MAX_MESSAGE_CHARS = 2_000;
+const MAX_TOTAL_CHARS = 8_000;
+
+function fitHistory(msgs: Msg[]): ChatMessage[] {
+  const out = msgs
+    .slice(-MAX_MESSAGES)
+    .map((m) => ({ role: m.role, content: m.content.slice(0, MAX_MESSAGE_CHARS) }));
+  let total = out.reduce((n, m) => n + m.content.length, 0);
+  while (out.length > 1 && total > MAX_TOTAL_CHARS) {
+    total -= out.shift()!.content.length;
+  }
+  return out;
+}
+
 export function AgentChat({ compact = false }: { compact?: boolean }) {
   const [messages, setMessages] = useState<Msg[]>([
     {
@@ -38,15 +54,22 @@ export function AgentChat({ compact = false }: { compact?: boolean }) {
     setInput("");
     setBusy(true);
     try {
-      const payload: ChatMessage[] = next.map((m) => ({
-        role: m.role,
-        content: m.content,
-      }));
+      const payload = fitHistory(next);
       const res = await fetch("/api/agent/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: payload }),
       });
+      if (res.status === 429) {
+        setMessages((m) => [
+          ...m,
+          {
+            role: "assistant",
+            content: "You’re sending messages a bit fast — please wait a minute and try again.",
+          },
+        ]);
+        return;
+      }
       const data = (await res.json()) as { reply?: string; mode?: string; error?: string };
       if (!res.ok || !data.reply) {
         throw new Error(data.error || "Agent unavailable");
