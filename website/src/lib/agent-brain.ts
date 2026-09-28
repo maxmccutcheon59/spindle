@@ -6,7 +6,7 @@ const KNOWLEDGE: { keys: string[]; answer: string }[] = [
   {
     keys: ["what is spindle", "spindle?", "about spindle", "overview"],
     answer:
-      "Spindle is Max McCutcheon’s LSM-tree key-value storage engine in Rust — write-ahead log, memtable, block-based SSTables, leveled compaction (×10), bloom filters, range scans, and MVCC. That engine is real (MIT on GitHub, cargo test). Spindle Cloud is the founding hypothesis for a paid managed layer ($49 Builder / $149 Scale) — not a live multi-tenant hosted product yet.",
+      "Spindle is Max McCutcheon’s LSM-tree key-value storage engine in Rust — write-ahead log, memtable, block-based SSTables, leveled compaction (×10), bloom filters, range scans, and MVCC. That engine is real (MIT on GitHub, cargo test). Spindle Cloud is an idea for a managed layer on top — not built, not for sale; there is a waitlist at /cloud/.",
   },
   {
     keys: ["wal", "fsync", "durability", "crash", "kill"],
@@ -41,7 +41,7 @@ const KNOWLEDGE: { keys: string[]; answer: string }[] = [
   {
     keys: ["pricing", "cost", "subscribe", "plan", "builder", "scale", "$", "pay", "stripe", "card", "bank", "ach", "payment"],
     answer:
-      "Plans: Open Source $0 (real today) · Builder $49/mo · Scale $149/mo — the paid tiers are founding Cloud price hypotheses, not live hosted feature checklists (no public PITR/dashboards/SLA yet). Stripe Checkout is scaffolded; on GitHub Pages without Payment Link secrets, /subscribe/* emails MaxMcCutcheon1@outlook.com. See /pricing/ and /case-study/.",
+      "The engine is free and MIT-licensed. Spindle Cloud has no price and nothing is for sale — it isn't built. If you'd use a managed version, join the waitlist at /cloud/ (it emails MaxMcCutcheon1@outlook.com).",
   },
   {
     keys: ["dynamo", "dynamodb", "aws", "enterprise", "business", "company", "rival", "alternative", "vs", "compete", "lock-in"],
@@ -66,7 +66,7 @@ const KNOWLEDGE: { keys: string[]; answer: string }[] = [
   {
     keys: ["cloud", "hosted", "saas", "live", "production cloud", "endpoint"],
     answer:
-      "Spindle Cloud hosted durability is not a live billed multi-tenant product yet — no public Cloud API endpoint, no shipped PITR/dashboards/uptime SLA. Website + Agent brain + playground are public. Pricing ($49/$149) is a founding hypothesis. Email MaxMcCutcheon1@outlook.com for early access.",
+      "Spindle Cloud hosted durability is not a live billed multi-tenant product yet — no public Cloud API endpoint, no shipped PITR/dashboards/uptime SLA. Website + Agent brain + playground are public. Join the waitlist at /cloud/ if you'd use it.",
   },
   {
     keys: ["ai", "agent", "chatgpt", "copilot", "llm"],
@@ -91,7 +91,7 @@ function score(q: string, keys: string[]): number {
 export function localAgentReply(userText: string, history: ChatMessage[]): string {
   const q = userText.toLowerCase().trim();
   if (!q) {
-    return "Ask me anything about Spindle — durability, compaction, pricing hypotheses, or how to get started.";
+    return "Ask me anything about Spindle — durability, compaction, the Cloud waitlist, or how to get started.";
   }
 
   let best = KNOWLEDGE[0];
@@ -109,13 +109,13 @@ export function localAgentReply(userText: string, history: ChatMessage[]): strin
   }
 
   if (/^(hi|hello|hey|yo)\b/.test(q)) {
-    return `Hey — I’m Spindle Agent, built for Max McCutcheon’s storage engine and Cloud roadmap. I can explain the LSM, walk pricing hypotheses, or help you design a durable put/get path. What are you building?`;
+    return `Hey — I’m Spindle Agent, built for Max McCutcheon’s storage engine and Cloud roadmap. I can explain the LSM, explain the Cloud waitlist, or help you design a durable put/get path. What are you building?`;
   }
   if (/thank/.test(q)) {
     return "Glad to help. Want the playground next, or shall we dig into WAL fsync vs group commit?";
   }
   if (/help|what can you/.test(q)) {
-    return "I can help with:\n• How Spindle’s WAL / memtable / SSTables / compaction work\n• Crash safety and MVCC\n• Cloud pricing hypotheses (not live hosted yet)\n• Getting started with the Rust API\n• Whether Spindle fits your workload\n\nTry: “What happens if we crash after fsync?” or “Is Cloud live?”";
+    return "I can help with:\n• How Spindle’s WAL / memtable / SSTables / compaction work\n• Crash safety and MVCC\n• Spindle Cloud status (not built — waitlist)\n• Getting started with the Rust API\n• Whether Spindle fits your workload\n\nTry: “What happens if we crash after fsync?” or “Is Cloud live?”";
   }
 
   const recent = history
@@ -124,7 +124,7 @@ export function localAgentReply(userText: string, history: ChatMessage[]): strin
     .map((m) => m.content)
     .join(" ");
 
-  return `I don’t have a perfect canned answer for that yet, but here’s the Spindle framing:\n\n• **Engine** — Rust LSM with WAL, blooms, leveled compaction, MVCC (see /design/) — real today.\n• **Cloud** — founding hypotheses at /pricing/ — not a live billed SaaS yet (email Max).\n• **Try** — /playground/ for put/get/flush, or cargo test on GitHub.\n\nRephrase toward durability, API, pricing, or architecture and I’ll go deep. (Your note: “${userText.slice(0, 160)}${userText.length > 160 ? "…" : ""}”${recent ? " · related thread context kept" : ""})`;
+  return `I don’t have a perfect canned answer for that yet, but here’s the Spindle framing:\n\n• **Engine** — Rust LSM with WAL, blooms, leveled compaction, MVCC (see /design/) — real today.\n• **Cloud** — not built; waitlist at /cloud/.\n• **Try** — /playground/ for put/get/flush, or cargo test on GitHub.\n\nRephrase toward durability, API, Cloud, or architecture and I’ll go deep. (Your note: “${userText.slice(0, 160)}${userText.length > 160 ? "…" : ""}”${recent ? " · related thread context kept" : ""})`;
 }
 
 export const AGENT_SYSTEM = `You are Spindle Agent, the product AI for Spindle — Max McCutcheon's LSM-tree key-value engine (Rust) and Spindle Cloud (managed SaaS roadmap).
@@ -139,9 +139,8 @@ Facts:
 - Engine: WAL, BTreeMap memtable + tombstones, SSTables (SPNDLSST), leveled ×10 compaction, blooms, merge iterators, MVCC
 - Crash story: fsync-before-ACK; kill -9 harness; torn WAL tails truncated
 - Benches (directional, DESIGN.md): put mem ~256µs, durable ~686µs, get flushed ~5.5µs
-- Plans: Free OSS (real); Builder $49/mo and Scale $149/mo are founding Cloud price hypotheses — features like PITR, dashboards, storage quotas, and uptime targets are roadmap, not live claims
-- Payments: Stripe Checkout scaffolded; on static Pages without Payment Links, subscribe emails the founder. Never invent live charges or customers.
-- Site paths: /pricing /enterprise /playground /about /get-started /design /agent /case-study /subscribe/builder
+- Cloud: not built, no pricing, nothing for sale. Interested users join the waitlist at /cloud/ (an email to the founder). PITR, dashboards, storage quotas, and uptime targets are goals, not claims.
+- Site paths: /cloud /enterprise /playground /about /get-started /design /agent /case-study
 - Repo: https://github.com/maxmccutcheon59/spindle
 
-Help with Spindle AND general engineering questions (architecture, KV workloads, Rust, product). Position Spindle as the convenient, auditable alternative to Dynamo-class friction — WITHOUT inventing fake customers, ARR, logos, waitlists, or live SLAs. If unsure about Spindle internals, say so and point to DESIGN.md.`;
+Help with Spindle AND general engineering questions (architecture, KV workloads, Rust, product). Position Spindle as the convenient, auditable alternative to Dynamo-class friction — WITHOUT inventing fake customers, ARR, logos, waitlist sign-ups, or live SLAs. If unsure about Spindle internals, say so and point to DESIGN.md.`;

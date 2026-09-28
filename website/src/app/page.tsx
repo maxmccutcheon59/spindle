@@ -118,7 +118,7 @@ export default function HomePage() {
             Big clouds win on endless feature lists. Spindle aims where teams
             feel pain: billing clarity, portability, and a support path that
             reaches a human who built the fsync policy. Engine columns below are
-            true today; Cloud columns are the founding hypothesis.
+            true today; Cloud columns are goals for a product that is not built.
           </p>
 
           <div className="mt-10 overflow-x-auto">

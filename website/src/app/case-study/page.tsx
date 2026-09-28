@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import {
   CtaLink,
   SiteFooter,
@@ -9,7 +10,7 @@ import { site } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Case study — what Spindle actually is",
   description:
-    "Honest case study: Spindle engine is real today; Spindle Cloud hosted durability and live Stripe on GitHub Pages are not yet. Positioning vs Dynamo-class friction without fake traction.",
+    "Honest case study: Spindle engine is real today; Spindle Cloud hosting is not built — there is a waitlist, nothing for sale. Positioning vs Dynamo-class friction without fake traction.",
   alternates: { canonical: "/case-study/" },
 };
 
@@ -37,16 +38,16 @@ export default function CaseStudyPage() {
             DynamoDB and peers win on raw hyperscale. Spindle aims at{" "}
             <strong>convenience teams can defend</strong>: an MIT engine you can
             open when storage misbehaves, portability out of one cloud, and
-            founder-reachable support — plus a founding hypothesis of flat $49 /
-            $149 Cloud bills (no RCU/WCU spreadsheets){" "}
-            <em>when hosted durability ships</em>. That is positioning, not a
+            founder-reachable support — plus the idea of one flat Cloud bill
+            (no RCU/WCU spreadsheets){" "}
+            <em>if hosted durability ships</em>. That is positioning, not a
             claim that businesses already rely on Spindle Cloud. See{" "}
-            <a
+            <Link
               className="text-teal-deep underline-offset-2 hover:underline"
               href="/enterprise/"
             >
               /enterprise/
-            </a>
+            </Link>
             .
           </p>
         </section>
@@ -71,48 +72,18 @@ export default function CaseStudyPage() {
             put ~686µs, flushed get ~5.5µs) are documented there.
           </p>
           <p className="leading-relaxed text-ink/90">
-            <strong>Spindle Cloud hosting: not live as a billed SaaS.</strong>{" "}
-            There is no public multi-tenant API endpoint, no hosted PITR /
-            dashboards / uptime SLA in production. The marketing site, Agent
-            (local brain on Pages; GPT needs a server + key), and playground are
-            public. Stripe Checkout API routes need a non-static host; Payment
-            Links are optional secrets — on GitHub Pages today, subscribe falls
-            back to emailing the founder. Full hosted provisioning is the
-            roadmap.
-          </p>
-        </section>
-
-        <section className="mt-12 space-y-4">
-          <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-ink">
-            How would customers pay — and who gets the money?
-          </h2>
-          <p className="leading-relaxed text-ink/90">
-            Checkout is designed for <strong>Stripe</strong> (card; US bank/ACH
-            when enabled). Until Payment Links or a Vercel-style API host are
-            wired with live keys, public visitors email{" "}
-            <a
+            <strong>Spindle Cloud hosting: not built.</strong> There is no
+            public multi-tenant API endpoint, no hosted PITR / dashboards /
+            uptime SLA, and no way to pay. The site, Agent (local brain on
+            Pages; GPT needs a server + key), and playground are public. Cloud
+            has a{" "}
+            <Link
               className="text-teal-deep underline-offset-2 hover:underline"
-              href={`mailto:${site.author.email}`}
+              href="/cloud/"
             >
-              {site.author.email}
-            </a>
-            . When charging starts, funds land in {site.author.name}&apos;s
-            Stripe and payout to his bank. Configure keys per SETUP.md — never
-            fake-charge customers.
-          </p>
-        </section>
-
-        <section className="mt-12 space-y-4">
-          <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-ink">
-            Is the pricing competitive?
-          </h2>
-          <p className="leading-relaxed text-ink/90">
-            <strong>$49 / $149</strong> is founder early-access{" "}
-            <em>hypothesis</em> pricing for a future Cloud — forecastable SaaS
-            lines, not a claim that Spindle already undercuts every Dynamo
-            workload or that those features exist hosted today. Big clouds win
-            on ecosystem. Spindle wins on readability, portability, and bills
-            finance could model without a FinOps war room.
+              waitlist
+            </Link>{" "}
+            so demand decides whether it gets built.
           </p>
         </section>
 

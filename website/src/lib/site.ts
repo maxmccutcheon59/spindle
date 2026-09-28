@@ -3,7 +3,7 @@ export const site = {
   product: "Spindle Cloud",
   tagline: "An open Rust LSM you can audit — Cloud is the roadmap",
   description:
-    "Spindle is Max McCutcheon’s MIT-licensed Rust LSM-tree key-value engine (WAL, SSTables, leveled compaction, MVCC). Spindle Cloud is a founding hypothesis for managed flat-priced hosting — not a live multi-tenant SaaS yet.",
+    "Spindle is Max McCutcheon’s MIT-licensed Rust LSM-tree key-value engine (WAL, SSTables, leveled compaction, MVCC). Spindle Cloud is an idea for managed hosting — not built and not for sale; there is a waitlist.",
   url:
     process.env.NEXT_PUBLIC_SITE_URL ??
     "https://maxmccutcheon59.github.io/spindle",
@@ -22,7 +22,7 @@ export const site = {
     bio: "Founder of Spindle. I build readable storage engines — durable puts, crash tests, and an honest Cloud roadmap without hyperscaler lock-in theater.",
   },
   ownership:
-    "Spindle, Spindle Cloud, and Spindle Agent are founded and solely owned by Max McCutcheon (legal/ownership contact: maxmccutcheon59@gmail.com; venture CTAs: MaxMcCutcheon1@outlook.com). Until a formal company entity is registered, all rights, trademarks-in-use, Cloud product, website, branding, and Agent remain with the founder personally. The open-source engine is MIT-licensed; Cloud and Agent are proprietary assets of the founder and may be assigned to a future LLC/Corp Max forms. Spindle Cloud hosted durability is not a live billed product yet — pricing below is a founding hypothesis.",
+    "Spindle, Spindle Cloud, and Spindle Agent are founded and solely owned by Max McCutcheon (legal/ownership contact: maxmccutcheon59@gmail.com; venture CTAs: MaxMcCutcheon1@outlook.com). Until a formal company entity is registered, all rights, trademarks-in-use, Cloud product, website, branding, and Agent remain with the founder personally. The open-source engine is MIT-licensed; Cloud and Agent are proprietary assets of the founder and may be assigned to a future LLC/Corp Max forms. Spindle Cloud is not a live product; there is a waitlist and nothing is for sale.",
   keywords: [
     "Spindle",
     "Spindle Cloud",
@@ -35,66 +35,12 @@ export const site = {
   ],
 } as const;
 
-export type PlanId = "builder" | "scale";
-
-export const plans = [
-  {
-    id: "free" as const,
-    name: "Open Source",
-    price: "$0",
-    period: "forever",
-    blurb:
-      "Run Spindle in your process, VPC, or on bare metal. Full MIT source. Real today — cargo test, DESIGN.md, kill -9 harness.",
-    features: [
-      "MIT-licensed Rust LSM engine",
-      "WAL, SSTables, leveled compaction",
-      "kill -9 crash tests in CI",
-      "Embed in your product — take it with you",
-    ],
-    cta: "View on GitHub",
-    href: "https://github.com/maxmccutcheon59/spindle",
-    external: true,
-    highlighted: true,
-  },
-  {
-    id: "builder" as const,
-    name: "Builder",
-    price: "$49",
-    period: "/ month",
-    blurb:
-      "Founding price hypothesis for a future managed Cloud tier — not a live hosted endpoint today. Email Max to discuss early access.",
-    features: [
-      "Target: ~25 GB durable storage (when hosted)",
-      "Target: daily snapshots (roadmap)",
-      "Target: single-region Cloud endpoint (roadmap)",
-      "Founder-reachable email support",
-      "No live SLA — none claimed until hosted",
-    ],
-    cta: "Email about Builder",
-    href: "/subscribe/builder/",
-    external: false,
-    highlighted: false,
-  },
-  {
-    id: "scale" as const,
-    name: "Scale",
-    price: "$149",
-    period: "/ month",
-    blurb:
-      "Founding price hypothesis for production-shaped Cloud — features below are targets, not shipped product claims.",
-    features: [
-      "Target: ~250 GB durable storage (when hosted)",
-      "Target: point-in-time recovery (roadmap)",
-      "Priority founder support (email)",
-      "Target: usage dashboards & audit log (roadmap)",
-      "Same open engine under the hood",
-    ],
-    cta: "Email about Scale",
-    href: "/subscribe/scale/",
-    external: false,
-    highlighted: false,
-  },
-] as const;
+/** Cloud waitlist: a pre-filled email (the site is static, so no form backend). */
+export const waitlistHref = `mailto:${site.author.email}?subject=${encodeURIComponent(
+  "Spindle Cloud waitlist",
+)}&body=${encodeURIComponent(
+  "Hi Max,\n\nPlease add me to the Spindle Cloud waitlist.\n\nWhat I'd store / workload:\n",
+)}`;
 
 export const benches = [
   {
@@ -145,7 +91,7 @@ export const stack = [
 export const enterpriseWins = [
   {
     title: "No capacity theater (hypothesis)",
-    body: "DynamoDB forces RCUs, WCUs, on-demand mode, reserved capacity, and FinOps archaeology. Spindle Cloud’s founding bet is a flat monthly plan — put, get, scan — when hosted durability ships. Finance forecasts one line. Engineering ships without a capacity committee.",
+    body: "DynamoDB forces RCUs, WCUs, on-demand mode, reserved capacity, and FinOps archaeology. Spindle Cloud’s bet is one flat monthly plan — put, get, scan — if hosted durability ships. Finance forecasts one line. Engineering ships without a capacity committee.",
   },
   {
     title: "An engine you can open today",
@@ -177,7 +123,7 @@ export const vsCloud = [
       {
         label: "Pricing",
         them: "Usage meters, reserved capacity, surprise bills",
-        us: "OSS free today; Cloud $49 / $149 founding hypothesis",
+        us: "OSS free today; Cloud pricing not set (waitlist)",
       },
       {
         label: "Lock-in",
@@ -202,7 +148,7 @@ export const vsCloud = [
       {
         label: "Procurement",
         them: "Commitments, reserved capacity, SKUs",
-        us: "Email Max for early access; Stripe when wired",
+        us: "Join the Cloud waitlist — nothing to buy yet",
       },
     ],
   },
@@ -215,19 +161,19 @@ export const saasPromises = [
   },
   {
     title: "Bills finance could model (roadmap)",
-    body: "If/when Cloud hosts, founding plans aim at subscription lines instead of RU/WU graphs. Until then, self-host the engine at $0.",
+    body: "If Cloud ships, the aim is one subscription line instead of RU/WU graphs. Until then, self-host the engine at $0.",
   },
   {
     title: "Convenience without the cage (hypothesis)",
-    body: "Managed durability is the company product direction — not a claim that multi-tenant hosting, PITR, or dashboards are live. Embed or self-host now; email Max about Cloud early access.",
+    body: "Managed durability is the company product direction — not a claim that multi-tenant hosting, PITR, or dashboards are live. Embed or self-host now; join the waitlist to hear about Cloud.",
   },
 ] as const;
 
-/** Business reasons — short bullets for pricing / enterprise CTAs */
+/** Business reasons — short bullets for the Cloud / enterprise pages */
 export const businessReasons = [
   {
     title: "Forecastable spend (hypothesis)",
-    body: "Cloud founding prices are meant to replace capacity planning meetings with a subscription finance can model — once hosted exists.",
+    body: "Cloud aims to replace capacity planning meetings with one subscription finance can model — if hosting ships.",
   },
   {
     title: "Escape hatch built in",

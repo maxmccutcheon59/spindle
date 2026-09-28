@@ -57,10 +57,9 @@ export default function AboutPage() {
           </p>
           <p className="leading-relaxed text-ink/90">
             Spindle Cloud is the company product{" "}
-            <em>direction</em> on top of that engine — managed durability and
-            Stripe subscriptions when hosted ships. I&apos;m the founder. Source
-            stays MIT; Builder and Scale are founding price hypotheses for the
-            hosted layer, not live feature checklists.
+            <em>direction</em> on top of that engine — managed durability, if
+            enough people want it. It is not built and nothing is for sale;
+            there is a waitlist. Source stays MIT either way.
           </p>
           <p className="leading-relaxed text-ink/90">
             <strong className="text-ink">Legal stance today:</strong> there is
@@ -130,8 +129,8 @@ export default function AboutPage() {
           <CtaLink href={site.github} external>
             Open the engine
           </CtaLink>
-          <CtaLink href="/pricing/" variant="ghost">
-            Cloud pricing hypotheses
+          <CtaLink href="/cloud/" variant="ghost">
+            Cloud waitlist
           </CtaLink>
         </div>
       </main>

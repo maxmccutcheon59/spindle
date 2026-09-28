@@ -6,7 +6,7 @@ const links = [
   { href: "/enterprise/", label: "Enterprise" },
   { href: "/agent/", label: "Agent" },
   { href: "/playground/", label: "Playground" },
-  { href: "/pricing/", label: "Pricing" },
+  { href: "/cloud/", label: "Cloud waitlist" },
   { href: "/case-study/", label: "Case study" },
   { href: "/about/", label: "About" },
 ] as const;
@@ -60,17 +60,17 @@ export function SiteHeader() {
           </Link>
         ))}
         <a
-          href={`mailto:${site.author.email}?subject=Spindle%20Cloud%20early%20access`}
+          href={`mailto:${site.author.email}?subject=Spindle`}
           className="rounded-md bg-teal px-3.5 py-2 text-sm font-semibold text-primary-foreground transition-transform hover:-translate-y-0.5 hover:bg-teal-deep"
         >
           Email Max
         </a>
       </nav>
       <Link
-        href="/pricing/"
+        href="/cloud/"
         className="rounded-md bg-teal px-3 py-2 text-sm font-semibold text-primary-foreground lg:hidden"
       >
-        Pricing
+        Waitlist
       </Link>
       </div>
     </header>
@@ -116,8 +116,8 @@ export function SiteFooter() {
               </Link>
             </li>
             <li>
-              <Link className="hover:text-white" href="/pricing/">
-                Pricing
+              <Link className="hover:text-white" href="/cloud/">
+                Cloud waitlist
               </Link>
             </li>
             <li>
@@ -128,11 +128,6 @@ export function SiteFooter() {
             <li>
               <Link className="hover:text-white" href="/playground/">
                 Playground
-              </Link>
-            </li>
-            <li>
-              <Link className="hover:text-white" href="/subscribe/builder/">
-                Cloud early access
               </Link>
             </li>
             <li>

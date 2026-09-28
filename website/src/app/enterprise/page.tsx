@@ -14,7 +14,7 @@ import {
 export const metadata: Metadata = {
   title: "For teams — Spindle vs Dynamo-class friction",
   description:
-    "Why teams evaluate Spindle’s open Rust LSM vs DynamoDB-style KV: auditable engine today, flat Cloud pricing as a founding hypothesis, founder support — no fake enterprise traction claims.",
+    "Why teams evaluate Spindle’s open Rust LSM vs DynamoDB-style KV: auditable engine today, a Cloud waitlist (not for sale), founder support — no fake enterprise traction claims.",
   alternates: { canonical: "/enterprise/" },
   keywords: [
     "DynamoDB alternative",
@@ -159,8 +159,8 @@ export default function EnterprisePage() {
 
           <div className="mt-10 flex flex-wrap gap-3">
             <CtaLink href="/case-study/">Read the honest case study</CtaLink>
-            <CtaLink href="/pricing/" variant="ghost">
-              Pricing hypotheses
+            <CtaLink href="/cloud/" variant="ghost">
+              Cloud waitlist
             </CtaLink>
           </div>
         </section>
