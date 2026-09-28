@@ -1,4 +1,4 @@
-//! Put, get, delete, flush, scan, and reopen.
+//! Put, get, delete, flush, scan, snapshot, and reopen.
 //!
 //! ```bash
 //! cargo run --example quickstart
@@ -55,6 +55,23 @@ fn main() -> spindle::Result<()> {
         keys.push(kv.key);
     }
     assert_eq!(keys, vec![b"user:ada".to_vec(), b"user:alan".to_vec()]);
+
+    // A snapshot keeps reading the data as it was, even after later writes
+    // and a flush.
+    db.put(b"config:mode", b"draft")?;
+    let snap = db.snapshot();
+    db.put(b"config:mode", b"live")?;
+    db.flush()?;
+    let then = db.get_snapshot(b"config:mode", &snap)?;
+    let now = db.get(b"config:mode")?;
+    println!(
+        "  snapshot config:mode -> {} (now {})",
+        display(then.as_deref()),
+        display(now.as_deref())
+    );
+    assert_eq!(then.as_deref(), Some(b"draft".as_slice()));
+    assert_eq!(now.as_deref(), Some(b"live".as_slice()));
+    drop(snap);
 
     drop(db);
 

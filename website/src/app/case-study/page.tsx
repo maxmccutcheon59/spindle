@@ -68,8 +68,8 @@ export default function CaseStudyPage() {
               DESIGN.md
             </a>
             . WAL, memtable, SSTables, leveled compaction, blooms, scans, MVCC —
-            implemented and tested. Directional benches (mem put ~256µs, durable
-            put ~686µs, flushed get ~5.5µs) are documented there.
+            implemented and tested. Directional benches (mem put ~1.9µs, durable
+            put ~238µs, flushed get ~8µs) are documented there.
           </p>
           <p className="leading-relaxed text-ink/90">
             <strong>Spindle Cloud hosting: not built.</strong> There is no

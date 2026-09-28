@@ -19,7 +19,7 @@ cd spindle
 cargo run --example quickstart
 ```
 
-That prints **put**, **get**, **delete**, **flush**, a **scan**, and a **reopen**. Source: [`examples/quickstart.rs`](examples/quickstart.rs).
+That prints **put**, **get**, **delete**, **flush**, a **scan**, a **snapshot** read, and a **reopen**. Source: [`examples/quickstart.rs`](examples/quickstart.rs).
 
 ```rust
 use spindle::{Db, Options};
@@ -48,14 +48,24 @@ cargo clippy --all-targets -- -D warnings
 | Piece | In this crate |
 | --- | --- |
 | WAL | Append before the memtable. `SyncPolicy::EveryWrite` (default, `fdatasync`) or `GroupCommit { group_commit_ms }` |
-| Memtable | `BTreeMap` plus tombstones. Readers see an `Arc` published after each write |
+| Memtable | `BTreeMap` plus tombstones behind a reader-writer lock; a `put` costs ~2 µs regardless of how much is buffered |
 | SSTables | Prefix-compressed blocks, sparse index, per-table bloom, 48-byte footer, magic `SPNDLSST` |
 | Compaction | Background thread `spindle-compact`. L0 at 4 files; higher levels grow ×10. Seven levels (0–6) |
 | Reads | Memtable, then immutable memtables, then SSTables. Bloom in front of each table |
-| MVCC | Monotonic sequence numbers. `snapshot` / `get_snapshot` / `scan_snapshot` |
-| Tests | 40 tests: persistence, flush, MVCC, compaction (L0→L1, tombstones, worker), MANIFEST recovery, reopen/WAL regressions, reads racing compaction, `kill -9` replay ([`tests/crash_kill9.rs`](tests/crash_kill9.rs)), SSTable fuzz |
+| MVCC | Monotonic sequence numbers. `snapshot` / `get_snapshot` / `scan_snapshot`; compaction keeps whatever live snapshots can see |
+| Tests | 48 tests: persistence, flush, MVCC and snapshots through compaction, compaction rules, MANIFEST recovery, reopen/WAL regressions, concurrent readers during memtable rotation, a randomized model test against a `BTreeMap` ([`tests/model.rs`](tests/model.rs)), `kill -9` replay ([`tests/crash_kill9.rs`](tests/crash_kill9.rs)), SSTable fuzz |
 
 Public API (`src/lib.rs`): `Db`, `open`, `Options`, `SyncPolicy`, `Snapshot`, `KvIter`, `Error`, `Result`. `Table` is also exported.
+
+A `Snapshot` keeps the versions it can see alive until it is dropped, and `get_snapshot` / `scan_snapshot` take it by reference:
+
+```rust
+db.put(b"k", b"old")?;
+let snap = db.snapshot();
+db.put(b"k", b"new")?;
+assert_eq!(db.get_snapshot(b"k", &snap)?.as_deref(), Some(b"old".as_slice()));
+assert_eq!(db.get(b"k")?.as_deref(), Some(b"new".as_slice()));
+```
 
 ## Optional: website
 

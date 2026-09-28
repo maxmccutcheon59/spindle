@@ -16,7 +16,7 @@ const KNOWLEDGE: { keys: string[]; answer: string }[] = [
   {
     keys: ["memtable", "btree", "tombstone"],
     answer:
-      "Memtable is a BTreeMap with tombstones (not silent deletes). Single writer; readers see an Arc snapshot. Deletes stay until compaction so older MVCC snapshots stay correct.",
+      "Memtable is a BTreeMap with tombstones (not silent deletes) behind a reader-writer lock; a single writer holds it only for one insert. Deletes stay until compaction so older MVCC snapshots stay correct.",
   },
   {
     keys: ["sstable", "bloom", "footer", "format"],
@@ -31,12 +31,12 @@ const KNOWLEDGE: { keys: string[]; answer: string }[] = [
   {
     keys: ["mvcc", "snapshot", "sequence"],
     answer:
-      "Every write gets a monotonic SequenceNumber. Internal keys pack (seq << 8 | type). Snapshots are just a seq; reads ignore keys newer than the snapshot.",
+      "Every write gets a monotonic SequenceNumber. Internal keys pack (seq << 8 | type). A snapshot is a seq plus a registration, so compaction keeps whatever it can see; reads ignore keys newer than the snapshot.",
   },
   {
     keys: ["benchmark", "latency", "performance", "fast"],
     answer:
-      "Directional Criterion numbers (documented in DESIGN.md): mem-only put ~256µs, durable put ~686µs, flushed get ~5.5µs. Honest losses vs RocksDB: no skiplist, whole-file SSTable load (no block cache), single compaction thread. Details in DESIGN.md §9.",
+      "Directional Criterion numbers (documented in DESIGN.md): mem-only put ~1.9µs, durable put ~238µs, flushed get ~8µs. Honest losses vs RocksDB: no skiplist, whole-file SSTable load (no block cache), single compaction thread. Details in DESIGN.md §9.",
   },
   {
     keys: ["pricing", "cost", "subscribe", "plan", "builder", "scale", "$", "pay", "stripe", "card", "bank", "ach", "payment"],
@@ -138,7 +138,7 @@ Facts:
 - Ownership: Spindle, Spindle Cloud, and Spindle Agent are solely owned by Max McCutcheon. Engine MIT; Cloud/website/Agent are founder-owned products.
 - Engine: WAL, BTreeMap memtable + tombstones, SSTables (SPNDLSST), leveled ×10 compaction, blooms, merge iterators, MVCC
 - Crash story: fsync-before-ACK; kill -9 harness; torn WAL tails truncated
-- Benches (directional, DESIGN.md): put mem ~256µs, durable ~686µs, get flushed ~5.5µs
+- Benches (directional, DESIGN.md): put mem ~1.9µs, durable ~238µs, get flushed ~8µs
 - Cloud: not built, no pricing, nothing for sale. Interested users join the waitlist at /cloud/ (an email to the founder). PITR, dashboards, storage quotas, and uptime targets are goals, not claims.
 - Site paths: /cloud /enterprise /playground /about /get-started /design /agent /case-study
 - Repo: https://github.com/maxmccutcheon59/spindle

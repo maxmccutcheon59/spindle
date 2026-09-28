@@ -40,6 +40,34 @@ fn bench_puts(c: &mut Criterion) {
         });
     });
 
+    // Cost of one put when the memtable already holds many entries. A write
+    // path that touches every buffered entry (e.g. copying the memtable to
+    // publish it to readers) shows up here as time growing with `prefill`.
+    for prefill in [1_000u64, 20_000, 100_000] {
+        g.bench_function(format!("mem_only_prefilled_{prefill}"), |b| {
+            let dir = tempdir().unwrap();
+            let mut o = opts(
+                dir.path(),
+                SyncPolicy::GroupCommit {
+                    group_commit_ms: 60_000,
+                },
+            );
+            o.write_buffer_size = 256 * 1024 * 1024; // never flush during the run
+            let db = Db::open(o).unwrap();
+            for i in 0..prefill {
+                db.put(format!("p{i:08}").as_bytes(), b"value-pad-pad-pad")
+                    .unwrap();
+            }
+            let mut i = 0u64;
+            b.iter(|| {
+                let key = format!("k{i:08}");
+                db.put(key.as_bytes(), b"value-pad-pad-pad").unwrap();
+                i += 1;
+                black_box(i);
+            });
+        });
+    }
+
     g.bench_function("durable_every_write", |b| {
         let dir = tempdir().unwrap();
         let db = Db::open(opts(dir.path(), SyncPolicy::EveryWrite)).unwrap();

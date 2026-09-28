@@ -45,17 +45,17 @@ export const waitlistHref = `mailto:${site.author.email}?subject=${encodeURIComp
 export const benches = [
   {
     name: "Mem-only put",
-    value: "256 µs",
+    value: "1.9 µs",
     detail: "Group-commit window, rarely fsyncs",
   },
   {
     name: "Durable put",
-    value: "686 µs",
-    detail: "fdatasync after every WAL append",
+    value: "238 µs",
+    detail: "fdatasync after every WAL append (disk-bound)",
   },
   {
     name: "Flushed get",
-    value: "5.5 µs",
+    value: "8.0 µs",
     detail: "10k keys, one SSTable + bloom",
   },
 ] as const;
@@ -63,7 +63,7 @@ export const benches = [
 export const stack = [
   {
     title: "Memtable",
-    body: "BTreeMap with tombstones. Readers see an Arc snapshot; deletes never silently vanish under MVCC.",
+    body: "BTreeMap with tombstones behind a reader-writer lock. Writers hold it for one insert; deletes never silently vanish under MVCC.",
   },
   {
     title: "Write-ahead log",
