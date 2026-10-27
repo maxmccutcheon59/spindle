@@ -19,32 +19,25 @@ export default function AboutPage() {
       <SiteHeader />
       <main className="mx-auto max-w-3xl px-5 py-12 md:px-8 md:py-16">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-deep">
-          Founder
+          About
         </p>
         <h1 className="mt-3 font-[family-name:var(--font-display)] text-2xl font-extrabold tracking-tight text-ink sm:text-4xl md:text-5xl">
           {site.author.name}
         </h1>
         <p className="mt-2 text-lg font-medium text-teal-deep">
-          {site.author.role} · builder of {site.name}
+          {site.author.role}
         </p>
         <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
           {site.author.bio}
         </p>
-        <p className="mt-4 rounded-md border border-teal/40 bg-card/80 px-4 py-3 text-sm leading-relaxed text-ink">
-          <span className="font-semibold text-teal-deep">Contact (preferred): </span>
+        <p className="mt-4 text-sm leading-relaxed text-ink">
+          <span className="font-semibold text-teal-deep">Contact: </span>
           <a
             className="font-semibold text-teal-deep underline-offset-2 hover:underline"
             href={`mailto:${site.author.email}`}
           >
             {site.author.email}
           </a>
-          <span className="mt-2 block text-muted-foreground">
-            <span className="font-semibold text-ink/80">Ownership / legal note email: </span>
-            {site.author.ownershipEmail} — kept for continuity with prior
-            contracts and LEGAL.md until Max consolidates inboxes after LLC
-            formation.
-          </span>
-          <span className="mt-2 block text-muted-foreground">{site.ownership}</span>
         </p>
         <div className="mt-10 space-y-6 border-l-2 border-teal pl-5">
           <p className="leading-relaxed text-ink/90">
@@ -54,21 +47,6 @@ export default function AboutPage() {
             packet; the{" "}
             <code className="font-mono text-sm">kill -9</code> harness is the
             receipt.
-          </p>
-          <p className="leading-relaxed text-ink/90">
-            Spindle Cloud is the company product{" "}
-            <em>direction</em> on top of that engine — managed durability, if
-            enough people want it. It is not built and nothing is for sale;
-            there is a waitlist. Source stays MIT either way.
-          </p>
-          <p className="leading-relaxed text-ink/90">
-            <strong className="text-ink">Legal stance today:</strong> there is
-            no separate corporation yet — you contract with me, {site.author.name}.
-            When I register an LLC/Corp, Spindle IP and Cloud contracts assign
-            into that entity. The product stays storage infrastructure SaaS
-            (KV / Cloud / Agent on top of our engine) — not a rebrand into
-            robotics or a generic “AI holding company.” Expansion happens from
-            a working Spindle, not a slogan.
           </p>
         </div>
         <dl className="mt-12 grid gap-6 sm:grid-cols-2">
@@ -87,7 +65,7 @@ export default function AboutPage() {
           </div>
           <div>
             <dt className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-              Email (CTA)
+              Email
             </dt>
             <dd className="mt-1">
               <a
@@ -129,8 +107,8 @@ export default function AboutPage() {
           <CtaLink href={site.github} external>
             Open the engine
           </CtaLink>
-          <CtaLink href="/cloud/" variant="ghost">
-            Cloud waitlist
+          <CtaLink href="/design/" variant="ghost">
+            Design notes
           </CtaLink>
         </div>
       </main>

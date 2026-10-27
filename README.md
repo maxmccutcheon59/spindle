@@ -48,7 +48,7 @@ cargo clippy --all-targets -- -D warnings
 | Piece | In this crate |
 | --- | --- |
 | WAL | Append before the memtable. `SyncPolicy::EveryWrite` (default, `fdatasync`) or `GroupCommit { group_commit_ms }` |
-| Memtable | `BTreeMap` plus tombstones behind a reader-writer lock; a `put` costs ~2 µs regardless of how much is buffered |
+| Memtable | `BTreeMap` plus tombstones behind a reader-writer lock; a no-sync `put` measured 1.4–1.7 µs whether 0 or 100,000 entries were buffered (DESIGN.md §9) |
 | SSTables | Prefix-compressed blocks, sparse index, per-table bloom, 48-byte footer, magic `SPNDLSST` |
 | Compaction | Background thread `spindle-compact`. L0 at 4 files; higher levels grow ×10. Seven levels (0–6) |
 | Reads | Memtable, then immutable memtables, then SSTables. Bloom in front of each table |
@@ -69,7 +69,7 @@ assert_eq!(db.get(b"k")?.as_deref(), Some(b"new".as_slice()));
 
 ## Optional: website
 
-A static site is on [GitHub Pages](https://maxmccutcheon59.github.io/spindle/). Spindle Cloud there is a waitlist for a possible managed version, not a hosted database; nothing is for sale. See [`website/README.md`](website/README.md).
+A static documentation site (design notes, an in-browser playground) is on [GitHub Pages](https://maxmccutcheon59.github.io/spindle/). See [`website/README.md`](website/README.md).
 
 ## License
 

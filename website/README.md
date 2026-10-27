@@ -1,8 +1,6 @@
 # Spindle Website
 
-By **Max McCutcheon** — engine-first site for the Spindle Rust LSM: design notes, an in-browser playground, **Spindle Agent**, and a waitlist for a possible managed **Spindle Cloud**.
-
-**Honesty:** the Rust LSM is real, MIT-licensed OSS. Spindle Cloud is not built and nothing is for sale; `/cloud/` collects waitlist interest by email.
+By **Max McCutcheon** — documentation site for the Spindle Rust LSM: design notes, an in-browser playground, and **Spindle Agent** (a Q&A assistant over the design notes).
 
 ## Develop
 
@@ -25,4 +23,4 @@ npm run dev
 
 Setup details (domain, OpenAI key, Search Console): **[SETUP.md](./SETUP.md)**
 
-Public: https://maxmccutcheon59.github.io/spindle/ · Cloud waitlist: `/cloud/` · Case study: `/case-study/`
+Public: https://maxmccutcheon59.github.io/spindle/

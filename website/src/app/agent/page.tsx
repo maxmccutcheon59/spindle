@@ -5,7 +5,7 @@ import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Spindle Agent",
-  description: `Spindle Agent — ${site.author.name}'s assistant for the Rust LSM engine and Cloud roadmap. Local knowledge brain on Pages; GPT needs a server key.`,
+  description: `Spindle Agent answers questions about ${site.author.name}'s Rust LSM engine. Local knowledge base on Pages; GPT needs a server key.`,
   alternates: { canonical: "/agent/" },
 };
 
@@ -21,12 +21,11 @@ export default function AgentPage() {
           Spindle Agent
         </h1>
         <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
-          Co-pilot for Max&apos;s engine and Cloud roadmap — durability,
-          the Cloud waitlist, APIs, and workload fit. On GitHub Pages the local
-          Spindle brain answers from product docs (no server). Add{" "}
+          Ask about the engine: durability, compaction, MVCC, the API. On
+          GitHub Pages it answers from a small local knowledge base (no
+          server). Add{" "}
           <code className="font-mono text-sm">OPENAI_API_KEY</code> on a
-          Next.js host for GPT-backed answers. Does not invent customers or live
-          Cloud SLAs.
+          Next.js host for GPT-backed answers.
         </p>
         <div className="mt-8">
           <AgentChat />

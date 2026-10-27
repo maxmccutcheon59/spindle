@@ -1,12 +1,4 @@
-import {
-  benches,
-  credentials,
-  enterpriseWins,
-  saasPromises,
-  site,
-  stack,
-  vsCloud,
-} from "@/lib/site";
+import { benches, credentials, site, stack } from "@/lib/site";
 import { LsmHeroVisual } from "@/components/lsm-hero-visual";
 import {
   CtaLink,
@@ -15,8 +7,6 @@ import {
 } from "@/components/site-chrome";
 
 export default function HomePage() {
-  const compare = vsCloud[0];
-
   return (
     <div className="relative">
       <SiteHeader />
@@ -28,27 +18,27 @@ export default function HomePage() {
               {site.name}
             </p>
             <p className="animate-rise-delay-1 mt-3 text-sm font-semibold tracking-wide text-teal-deep md:text-base">
-              Founded by {site.author.name}
+              by {site.author.name}
             </p>
             <h1 className="animate-rise-delay-1 mt-5 max-w-xl text-2xl font-semibold leading-snug text-ink/90 md:text-3xl">
-              An open Rust LSM you can audit — without DynamoDB lock-in.
+              An LSM-tree key-value engine in Rust.
             </h1>
             <p className="animate-rise-delay-2 mt-5 max-w-lg text-base leading-relaxed text-muted-foreground md:text-lg">
-              Durable puts. Readable write path. Crash tests that survive{" "}
-              <code className="font-mono text-sm">kill -9</code>. The engine is
-              real and MIT on GitHub. {site.product} — managed flat-priced
-              hosting — is the founding roadmap, not a live multi-tenant product
-              yet.
+              Write-ahead log with fsync before a write is acknowledged,
+              block-based SSTables with bloom filters, leveled compaction, and
+              MVCC snapshots. Checked by a randomized model test against a{" "}
+              <code className="font-mono text-sm">BTreeMap</code> and a{" "}
+              <code className="font-mono text-sm">kill -9</code> crash harness.
             </p>
             <div className="animate-rise-delay-3 mt-8 flex flex-wrap gap-3">
               <CtaLink href={site.github} external>
-                Open the engine
+                Read the code
               </CtaLink>
               <CtaLink href="/get-started/" variant="ghost">
                 Get started
               </CtaLink>
-              <CtaLink href="/case-study/" variant="ghost">
-                Honest brief
+              <CtaLink href="/design/" variant="ghost">
+                Design notes
               </CtaLink>
             </div>
           </div>
@@ -80,102 +70,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="border-b border-border/80 bg-card/60 backdrop-blur-sm">
-          <div className="mx-auto max-w-6xl px-5 py-16 md:px-8 md:py-20">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-deep">
-              Why teams look at Spindle
-            </p>
-            <h2 className="mt-3 max-w-2xl font-[family-name:var(--font-display)] text-3xl font-bold tracking-tight text-ink md:text-4xl">
-              More convenient than a black box. More controllable than a cage.
-            </h2>
-            <p className="mt-4 max-w-2xl text-sm text-muted-foreground">
-              Positioning vs hyperscaler KV friction — not a claim that
-              enterprises already rely on Spindle Cloud.
-            </p>
-            <div className="mt-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
-              {enterpriseWins.map((item) => (
-                <article key={item.title}>
-                  <h3 className="font-[family-name:var(--font-display)] text-xl font-bold text-ink">
-                    {item.title}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {item.body}
-                  </p>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="mx-auto max-w-6xl px-5 py-16 md:px-8 md:py-20">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-deep">
-            vs hyperscaler KV
-          </p>
-          <h2 className="mt-3 font-[family-name:var(--font-display)] text-3xl font-bold tracking-tight text-ink md:text-4xl">
-            Dynamo-class power. Spindle-class clarity.
-          </h2>
-          <p className="mt-4 max-w-2xl text-muted-foreground">
-            Big clouds win on endless feature lists. Spindle aims where teams
-            feel pain: billing clarity, portability, and a support path that
-            reaches a human who built the fsync policy. Engine columns below are
-            true today; Cloud columns are goals for a product that is not built.
-          </p>
-
-          <div className="mt-10 overflow-x-auto">
-            <table className="w-full min-w-[640px] border-collapse text-left text-sm">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="py-3 pr-4 font-semibold text-muted-foreground">
-                    —
-                  </th>
-                  <th className="py-3 pr-4 font-semibold text-muted-foreground">
-                    {compare.them}
-                  </th>
-                  <th className="py-3 font-semibold text-teal-deep">
-                    {compare.us}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {compare.rows.map((row) => (
-                  <tr key={row.label} className="border-b border-border/70">
-                    <td className="py-3 pr-4 font-medium text-ink">
-                      {row.label}
-                    </td>
-                    <td className="py-3 pr-4 text-muted-foreground">
-                      {row.them}
-                    </td>
-                    <td className="py-3 font-medium text-ink">{row.us}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <section className="border-y border-border/80 bg-card/60 backdrop-blur-sm">
-          <div className="mx-auto max-w-6xl px-5 py-16 md:px-8 md:py-20">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-deep">
-              What is real vs roadmap
-            </p>
-            <h2 className="mt-3 max-w-2xl font-[family-name:var(--font-display)] text-3xl font-bold tracking-tight text-ink md:text-4xl">
-              Built for teams that ship — and for founders who refuse fake SaaS.
-            </h2>
-            <div className="mt-12 grid gap-10 md:grid-cols-3">
-              {saasPromises.map((item) => (
-                <article key={item.title}>
-                  <h3 className="font-[family-name:var(--font-display)] text-xl font-bold text-ink">
-                    {item.title}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {item.body}
-                  </p>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
         <section
           id="engine"
           className="mx-auto max-w-6xl px-5 py-16 md:px-8 md:py-20"
@@ -187,9 +81,9 @@ export default function HomePage() {
             One write path. One read path. No mystery boxes.
           </h2>
           <p className="mt-4 max-w-2xl text-muted-foreground">
-            The same LevelDB-shaped core the company publishes — small enough to
-            audit, serious enough to build on. Cloud, when it ships, sits on this
-            path.
+            A LevelDB-shaped design, small enough to read end to end.
+            Every piece below is documented in DESIGN.md with the failure
+            modes it has to handle.
           </p>
           <div className="mt-12 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
             {stack.map((item) => (
@@ -217,8 +111,9 @@ export default function HomePage() {
               Directional numbers from the open engine.
             </h2>
             <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
-              From Criterion runs documented in DESIGN.md — not Cloud SLA
-              numbers.
+              Criterion medians from <code className="font-mono">cargo bench --bench basic</code>.
+              Machine and commit are recorded in DESIGN.md. Treat as directional;
+              the durable number depends on the disk.
             </p>
             <div className="mt-10 grid gap-6 md:grid-cols-3">
               {benches.map((bench) => (
@@ -240,11 +135,11 @@ export default function HomePage() {
           <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-8 px-5 py-16 md:flex-row md:items-center md:px-8 md:py-20">
             <div>
               <h2 className="font-[family-name:var(--font-display)] text-3xl font-bold tracking-tight md:text-4xl">
-                Give your stack a KV path it can own.
+                Read the write path.
               </h2>
               <p className="mt-3 max-w-xl text-mist/75">
-                Start with the MIT engine. Talk to the founder about Cloud early
-                access when something matters.
+                Start with DESIGN.md, then the WAL and the crash test. Questions
+                and bug reports are welcome.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -256,7 +151,7 @@ export default function HomePage() {
                 GitHub · spindle
               </CtaLink>
               <CtaLink
-                href={`mailto:${site.author.email}?subject=Spindle%20Cloud%20early%20access`}
+                href={`mailto:${site.author.email}?subject=Spindle`}
                 external
                 variant="ghost"
                 className="text-mist ring-mist/30 hover:bg-white/5"

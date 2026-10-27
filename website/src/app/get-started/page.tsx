@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { site } from "@/lib/site";
 import {
   CtaLink,
@@ -26,21 +25,14 @@ export default function GetStartedPage() {
           Clone, test, put a key.
         </h1>
         <p className="mt-5 text-lg leading-relaxed text-muted-foreground">
-          Spindle is a Rust crate. Rust 1.85+, then the usual cargo loop. Managed
-          Cloud hosting is not live yet — email{" "}
+          Spindle is a Rust crate. Rust 1.85+, then the usual cargo loop.
+          Questions or bug reports:{" "}
           <a
             href={`mailto:${site.author.email}`}
             className="font-medium text-teal-deep underline-offset-2 hover:underline"
           >
             {site.author.email}
-          </a>{" "}
-          or join the{" "}
-          <Link
-            href="/cloud/"
-            className="font-medium text-teal-deep underline-offset-2 hover:underline"
-          >
-            Cloud waitlist
-          </Link>
+          </a>
           .
         </p>
 

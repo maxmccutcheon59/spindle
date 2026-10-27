@@ -175,17 +175,28 @@ cargo bench --bench basic
 cargo bench --bench rocksdb_compare --features rocksdb-bench  # needs librocksdb + C++ toolchain
 ```
 
-### Spindle microbenchmarks (2026-09-28, 4-core cloud VM)
+### Spindle microbenchmarks
 
-Criterion, 4 s per benchmark, `tempfile` dirs. Treat as directional, not a
-paper result; the durable number in particular depends on the disk.
+`cargo bench --bench basic` (Criterion, 5 s measurement per benchmark,
+`tempfile` dirs). Values are Criterion's point estimate of the mean time per
+operation with its 95% confidence interval. Treat as directional, not a paper
+result; the durable number in particular depends on the disk.
 
-| Bench | Median latency | Notes |
-|-------|----------------|-------|
-| `put/mem_only_no_sync` | ~1.9 µs/op | GroupCommit window 60s ≈ rarely fsyncs |
-| `put/mem_only_prefilled_{1000,20000,100000}` | ~2.0–2.1 µs/op | flat as the memtable grows |
-| `put/durable_every_write` | ~238 µs/op | `fdatasync` after every WAL append |
-| `get/random_after_flush` | ~8.0 µs/op | 10k keys flushed to one SSTable |
+**Run 2026-10-27** — commit `b4b68ea`, rustc 1.85.0, 4 vCPU Intel Xeon
+@ 2.10 GHz cloud VM, ext4 on a virtual disk:
+
+| Bench | Mean (95% CI) | Notes |
+|-------|---------------|-------|
+| `put/mem_only_no_sync` | 1.42 µs (1.35–1.48) | GroupCommit window 60s ≈ rarely fsyncs |
+| `put/mem_only_prefilled_1000` | 1.62 µs (1.55–1.69) | |
+| `put/mem_only_prefilled_20000` | 1.64 µs (1.58–1.72) | |
+| `put/mem_only_prefilled_100000` | 1.69 µs (1.62–1.76) | flat as the memtable grows |
+| `put/durable_every_write` | 124.6 µs (120.0–129.8) | `fdatasync` after every WAL append |
+| `get/random_after_flush` | 7.15 µs (6.85–7.48) | 10k keys flushed to one SSTable |
+
+An earlier run (2026-09-28, a different 4-core cloud VM) measured ~1.9 µs,
+~2.0–2.1 µs, ~238 µs and ~8.0 µs for the same benchmarks; the durable put is
+the one that moves most between machines, as expected for an fsync-bound path.
 
 **Before/after of the write-path fix** (same machine, same benchmark file): with
 1,000 entries already buffered a `put` took ~209 µs; it now takes ~2.1 µs
@@ -195,7 +206,7 @@ put, and the 100,000-entry benchmark did not finish in several minutes.
 The earlier figures in this file (256 µs / 686 µs / 5.5 µs) came from a
 different machine and included that bug.
 
-Durable puts are ~125× slower than the no-sync path — expected: we pay for
+Durable puts are roughly 90× slower than the no-sync path on this run — expected: we pay for
 `sync_data` on every acknowledged write. Gets after flush are decent for a
 whole-file load + bloom probe, but will degrade as levels grow (no block cache).
 
