@@ -1,9 +1,8 @@
 # Spindle website setup
 
-**Honesty gate:** Spindle Cloud is **not built** and nothing is for sale. The
-site offers a waitlist (`/cloud/`, a pre-filled email to
-**MaxMcCutcheon1@outlook.com**). Do not market PITR, dashboards, storage
-quotas, uptime targets, or prices as real until they exist.
+**Honesty gate:** Spindle is an open-source library, not a hosted service.
+Do not publish prices, SLAs, customers, or benchmark numbers that are not
+reproduced in DESIGN.md.
 
 ---
 

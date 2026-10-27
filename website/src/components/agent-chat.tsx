@@ -34,7 +34,7 @@ export function AgentChat({ compact = false }: { compact?: boolean }) {
     {
       role: "assistant",
       content:
-        "I’m Spindle Agent — Max McCutcheon’s AI for the open engine and Cloud roadmap. Ask about durability, APIs, or your workload. Cloud hosting isn’t built yet — there’s a waitlist.",
+        "I’m Spindle Agent. Ask me how Spindle’s WAL, SSTables, compaction, or MVCC snapshots work, or how to get started.",
     },
   ]);
   const [input, setInput] = useState("");
