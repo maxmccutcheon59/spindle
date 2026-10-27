@@ -77,8 +77,13 @@ impl Db {
         let mut recovered = MemTable::new();
         let wal_nums = wal::list_wal_numbers(&opts.path)?;
         let mut max_seq = versions.last_sequence;
+        // Byte length of the complete records in the newest WAL; we reopen
+        // that file for appends and must cut any torn tail off first.
+        let mut newest_valid_len = 0;
         for num in &wal_nums {
-            for rec in wal::replay(&wal::wal_path(&opts.path, *num))? {
+            let (records, valid_len) = wal::replay(&wal::wal_path(&opts.path, *num))?;
+            newest_valid_len = valid_len;
+            for rec in records {
                 max_seq = max_seq.max(rec.key.sequence);
                 recovered.add(rec.key, rec.value);
             }
@@ -91,7 +96,7 @@ impl Db {
         }
 
         let (wal, wal_number) = if let Some(&newest) = wal_nums.last() {
-            match Wal::open_existing(&opts.path, newest, opts.sync) {
+            match Wal::open_existing(&opts.path, newest, opts.sync, newest_valid_len) {
                 Ok(w) => (w, newest),
                 Err(_) => {
                     let n = versions.allocate_file_number();

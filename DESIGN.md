@@ -68,8 +68,17 @@ On restart, WAL replay re-applies it. **No acknowledged write is lost.**
 If we died *before* fsync returned, we never acknowledged — losing it is
 correct.
 
-Torn tails (partial record at EOF) are truncated on replay, not treated
-as corruption of prior records.
+Torn tails (partial record at EOF) are not treated as corruption of prior
+records: replay stops at the last complete record and reports its byte
+offset, and `Db::open` truncates the newest WAL to that offset (then syncs
+the new length) before appending to it.
+
+**Bug found and fixed.** Earlier versions only *skipped* the torn tail on
+replay and then reopened the WAL in append mode, so new records landed after
+the garbage bytes. The next replay stopped at the garbage, and a write that
+had been fsynced and acknowledged after the first reopen was silently gone
+after the second. `tests/wal_torn_tail.rs` reproduces that sequence (put →
+torn tail → reopen → put → reopen) and fails on the old code.
 
 ---
 
